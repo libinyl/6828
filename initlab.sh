@@ -14,7 +14,7 @@ fi
 mkdir   ${workpath}
 cd      ${workpath}
 
-read -p "where do you prefer to download the qemu code? press 'p' for personal; 'o' or others for offical:" f2
+read -p "where do you prefer to download the qemu code? press 'p' for personal; 'o' or others for offical(recommanded if your network is not good):" f2
 case $f2 in
     "p") qemupath="https://gitee.com/libinyl/6.828-qemu.git"    ;;
      * ) qemupath="https://github.com/mit-pdos/6.828-qemu.git"  ;;
