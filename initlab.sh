@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-echo "test"
 workpath="${HOME}/6828"
 
 if [[ -d ${workpath} ]];then
-    echo "t2"
     read -p "path \"${workpath}\" already exists. To force init,press 'f'; 'e' or others to exit." f1
     case $f1 in
     'f')    rm -rf ${workpath}  break   ;;
