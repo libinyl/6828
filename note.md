@@ -1,0 +1,1 @@
+PPT: [PC 硬件 与 x86 架构](https://pdos.csail.mit.edu/6.828/2018/lec/l-x86.pdf)
