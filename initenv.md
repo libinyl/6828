@@ -8,14 +8,15 @@
 
 `scp 源 宿`
 
-## qemu 常用命令
+## 初始化 qemu
 
 ```
+cd qemu
 ./configure --disable-kvm --disable-werror  --target-list="i386-softmmu x86_64-softmmu"
 ```
 
-如果缺少`pkg-config`：
+- 如果配置 qemu 时缺少包:
 
 ```
-
+apt install pkg-config libglib2.0-dev zlib1g-dev libpixman-1-dev
 ```
