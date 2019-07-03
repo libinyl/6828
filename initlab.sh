@@ -46,6 +46,6 @@ else
 fi
 
 
-echo "init all lab code done,begin to install some useful package..."
+echo "init all lab code done,begin to install some useful packages..."
 
 sudo apt install pkg-config libglib2.0-dev zlib1g-dev libpixman-1-dev
