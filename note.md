@@ -201,6 +201,4 @@ PPT: [PC 硬件 与 x86 架构](https://pdos.csail.mit.edu/6.828/2018/lec/l-x86.
 
 `scp 源 宿`
 
-- 解决 ssh 自动断开问题
-  
-  `sudo vim /etc/ssh/sshd_config`, 去掉`ServerAliveInterval`前的注释，并将值改为 60. 参考 [链接](https://blog.csdn.net/moxiaomomo/article/details/52982047).
+
