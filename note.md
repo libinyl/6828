@@ -168,7 +168,20 @@
 - 首先，boot loader 将处理器从 16 位的 real mode 转换到 32 位的保护模式。只有在保护模式，软件才能访问物理内存中 1MB 以上的部分。
 - 然后，boot loader 从通过 x86 专用 IO 指令的方式硬盘读取内核代码。
 
+**理解源代码**
 
+`boot.S`的工作：
+
+1. 被 BIOS 从硬盘上的第一个扇区读取到`0x7c00`, 并在实模式下执行，执行开始时 cs=0 ,ip=7c00.
+2. 通过`lgdt gdtdesc`,` orl $CR0_PE_ON, %eax`等指令切换至实模式；
+3. 跳转到 C 代码并执行，
+    ```
+    movl    $start, %esp
+    call bootmain
+    ```
+`boot/main.c`的工作：
+
+详细分析可参考这篇 [博客](https://blog.csdn.net/cinmyheart/article/details/39762595)
 
 ```shell
 git clone git://github.com/mit-pdos/xv6-public.git
