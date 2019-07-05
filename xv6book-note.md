@@ -94,11 +94,20 @@ boot loader 的代码包含两部分：
 2. 内核文件在哪?
 
     在硬盘上第二个扇区.
-3. 如何加载内核?
-   
-   内核是一个 ELF 格式的二进制文件,需要读取其 ELF 头,然后根据其信息
 
-# 参考解释
+    
+3. 如何加载内核?
+
+
+   
+   内核是一个 ELF 格式的二进制文件,需要读取其 ELF 头,然后根据其信息再做处理.
+
+4. 如何查看内核文件的 ELF 信息?
+
+    可通过`readelf -h kernel`查看内核的 elf header 信息;用`objdump -f kernel`查看入口点.
+
+# 参考链接
 
 - [scratch space](https://www.computerhope.com/jargon/s/scratch-space.htm)
 - [ELF 文件](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format)
+- [使用readelf和objdump解析目标文件](https://www.jianshu.com/p/863b279c941e)

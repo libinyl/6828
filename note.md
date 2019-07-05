@@ -247,8 +247,39 @@
     start address 0x0010000c       <----------  entry point
     ```
 
+    如`entry.S`所说,`_start`指定了 ELF 文件的入口.故内核的入口位于`entry.S`的第44 行`movw	$0x1234,0x472			# warm boot`.
+
 3. 内核的第一个指令在哪?
+
+    内核是一个 elf 文件,它本身描述了loader的进程从哪里开始执行.通过`readelf -h`可以看到elf 文件头描述的入口点:
+
+    ```
+    root@MyServer:~/6828/lab/obj/kern# readelf -h kernel
+    ELF Header:
+    Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
+    Class:                             ELF32
+    Data:                              2's complement, little endian
+    Version:                           1 (current)
+    OS/ABI:                            UNIX - System V
+    ABI Version:                       0
+    Type:                              EXEC (Executable file)
+    Machine:                           Intel 80386
+    Version:                           0x1
+    Entry point address:               0x10000c  <=========== 进程执行入口
+    Start of program headers:          52 (bytes into file)
+    Start of section headers:          82728 (bytes into file)
+    Flags:                             0x0
+    Size of this header:               52 (bytes)
+    Size of program headers:           32 (bytes)
+    Number of program headers:         3
+    Size of section headers:           40 (bytes)
+    Number of section headers:         11
+    Section header string table index: 8
+    ```
+
 4. 为了从磁盘中读取整个 kernel,boot loader 是如何决定读取多少个扇区的?它是怎么找到这个信息的?
+   
+    ELF 头文件信息指明了最后的位置.
 
 **如何查看内核 ELF 文件所有段的信息？**
 
@@ -454,11 +485,11 @@ ELF 文件包含两部分,ELF header 和 文件数据.文件数据又包含三�
 
 **File Header**
 
-ELF 文件头定义了使用 32 位地址还是 64 位地址.文件头在 32 位下是 52 个字节,64 位下是64 个字节.
+ELF 文件头定义了使用 32 位地址还是 64 位地址.文件头大小在 32 位下是 52 个字节,64 位下是64 个字节.
 
 ## 参考资料
 
 - [CSDN: Linux C中内联汇编的语法格式及使用方法](https://blog.csdn.net/slvher/article/details/8864996)
 - [知乎专栏: 汇编入门](https://zhuanlan.zhihu.com/p/23902265)
 - [常见x86汇编](http://www.cburch.com/csbsju/cs/350/handouts/x86.html)
-
+- [main.c 代码分析](https://blog.csdn.net/xiaocainiaoshangxiao/article/details/22953279)
