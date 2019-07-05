@@ -32,7 +32,8 @@
 
 汇编视图 layout asm
 汇编+寄存器视图 layout regs
-更新视图
+源代码视图 layout src
+
 
 ## 常用信息
 
