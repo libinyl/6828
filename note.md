@@ -445,7 +445,16 @@ PPT: [PC 硬件 与 x86 架构](https://pdos.csail.mit.edu/6.828/2018/lec/l-x86.
 
 ## 附记
 
+### ELF 文件格式简述
 
+ELF 文件包含两部分,ELF header 和 文件数据.文件数据又包含三部分:
+- 程序头表(program header table)
+- 段头表(section header table)
+- 程序头表和段头表所引用的数据
+
+**File Header**
+
+ELF 文件头定义了使用 32 位地址还是 64 位地址.文件头在 32 位下是 52 个字节,64 位下是64 个字节.
 
 ## 参考资料
 

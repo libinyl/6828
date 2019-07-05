@@ -43,7 +43,7 @@ boot loader 的代码包含两部分：
     `cli`.
 2. `cli`的作用？
    
-    去使能 CPU 中断 (interrupt).~~~~
+    去使能 CPU 中断 (interrupt).
 3. 中断的作用？
    
    用于硬件设备调用操作系统函数（中断处理器，interrupt handlers).
@@ -94,8 +94,11 @@ boot loader 的代码包含两部分：
 2. 内核文件在哪?
 
     在硬盘上第二个扇区.
-3. 
+3. 如何加载内核?
+   
+   内核是一个 ELF 格式的二进制文件,需要读取其 ELF 头,然后根据其信息
 
-# 名次解释
+# 参考解释
 
-[scratch space](https://www.computerhope.com/jargon/s/scratch-space.htm)
+- [scratch space](https://www.computerhope.com/jargon/s/scratch-space.htm)
+- [ELF 文件](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format)
