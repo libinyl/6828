@@ -486,9 +486,14 @@ ELF 文件包含两部分，ELF header 和 文件数据。文件数据又包含�
 
 ELF 文件头定义了使用 32 位地址还是 64 位地址。文件头大小在 32 位下是 52 个字节，64 位下是 64 个字节。
 
+## 遗留问题
+
+1. `main.c` 中的`ELFHDR->e_entry`跳转到了 elf 文件的入口点。如何验证？
+
 ## 参考资料
 
 - [CSDN: Linux C 中内联汇编的语法格式及使用方法](https://blog.csdn.net/slvher/article/details/8864996)
 - [知乎专栏：汇编入门](https://zhuanlan.zhihu.com/p/23902265)
 - [常见 x86 汇编](http://www.cburch.com/csbsju/cs/350/handouts/x86.html)
 - [main.c 代码分析](https://blog.csdn.net/xiaocainiaoshangxiao/article/details/22953279)
+- [全局描述表GDT](https://www.cnblogs.com/bajdcc/p/8972946.html)

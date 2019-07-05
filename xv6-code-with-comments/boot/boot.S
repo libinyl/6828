@@ -41,10 +41,8 @@ seta20.2:
   movb    $0xdf,%al               # 0xdf -> port 0x60
   outb    %al,$0x60
 
-  # Switch from real to protected mode, using a bootstrap GDT
-  # and segment translation that makes virtual addresses 
-  # identical to their physical addresses, so that the 
-  # effective memory map does not change during the switch.
+  # 从实模式切换到保护模式。这个过程通过 bootstrap GDT 和段翻译技术，让
+  # 虚拟地址与物理地址一一映射。这样在切换期间有效内存映射不会改变。
   lgdt    gdtdesc
   movl    %cr0, %eax
   orl     $CR0_PE_ON, %eax
@@ -56,7 +54,14 @@ seta20.2:
 
   .code32                     # Assemble for 32-bit mode
 protcseg:
-  # Set up the protected-mode data segment registers
+  # 设置保护模式的数据段寄存器。为 C 代码设置栈环境。
+  # 通常从 0xa000 到 0x10 0000 都是设备的内存区域；
+  # xv6 内核希望被加载到 0x10 0000.（elf 文件描述）
+  # boot loader 本身位于从 0x7c00 到 0x7e00(512字节)。
+  # 本质上任意其他区域都可以被当做栈来使用。 
+  # 这里选择 0x7c00 （也就是本文件中的 _start）作为栈顶，
+  # 这个栈将从那里向下（朝着 0x0000）增长。
+  # 
   movw    $PROT_MODE_DSEG, %ax    # Our data segment selector
   movw    %ax, %ds                # -> DS: Data Segment
   movw    %ax, %es                # -> ES: Extra Segment
