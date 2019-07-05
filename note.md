@@ -218,10 +218,10 @@
 
 > 当连接器计算程序内存布局时，会在紧邻`.data`段的`bss`段为 *未初始化的全局变量* 保留空间，如 `int x;`.C 语言要求未初始化的全局变量值为 0. 因此不需要在 ELF 二进制文件中保存 `bss` 的内容。链接器只记录`.bss`段的地址和大小。程序加载器或者程序本身必须将。`bss` 段归零。
 
-**练习三:**
-1. 处理器何时开始执行 32 位代码? 什么最终导致了16 位模式到 32 位模式的切换?
+**练习三：**
+1. 处理器何时开始执行 32 位代码？什么最终导致了 16 位模式到 32 位模式的切换？
    
-   答:  boot.S 48~51 行. 将 `cr0` 寄存器的最后一位置打开,即开启了保护模式.
+   答：boot.S 48~51 行。将 `cr0` 寄存器的最后一位置打开，即开启了保护模式。
 
     ```
     lgdt    gdtdesc
@@ -232,11 +232,11 @@
     > lgdt : 加载全局中断描述符
     > orl : 逻辑或
 
-2. boot loader 执行的最后一个指令是什么,它读取的内核的第一行代码是什么?
+2. boot loader 执行的最后一个指令是什么，它读取的内核的第一行代码是什么？
    
-   答: 最后一行代码是`((void (*)(void)) (ELFHDR->e_entry))();`,位于`main.c`的第 60 行.
+   答：最后一行代码是`((void (*)(void)) (ELFHDR->e_entry))();`, 位于`main.c`的第 60 行。
 
-   内核的入口可以通过以下命令查看:
+   内核的入口可以通过以下命令查看：
 
     ```
     root@MyServer:~/6828/lab# objdump -f obj/kern/kernel
@@ -247,11 +247,11 @@
     start address 0x0010000c       <----------  entry point
     ```
 
-    如`entry.S`所说,`_start`指定了 ELF 文件的入口.故内核的入口位于`entry.S`的第44 行`movw	$0x1234,0x472			# warm boot`.
+    如`entry.S`所说，`_start`指定了 ELF 文件的入口。故内核的入口位于`entry.S`的第 44 行`movw	$0x1234,0x472			# warm boot`.
 
-3. 内核的第一个指令在哪?
+3. 内核的第一个指令在哪？
 
-    内核是一个 elf 文件,它本身描述了loader的进程从哪里开始执行.通过`readelf -h`可以看到elf 文件头描述的入口点:
+    内核是一个 elf 文件，它本身描述了 loader 的进程从哪里开始执行。通过`readelf -h`可以看到 elf 文件头描述的入口点：
 
     ```
     root@MyServer:~/6828/lab/obj/kern# readelf -h kernel
@@ -277,9 +277,9 @@
     Section header string table index: 8
     ```
 
-4. 为了从磁盘中读取整个 kernel,boot loader 是如何决定读取多少个扇区的?它是怎么找到这个信息的?
+4. 为了从磁盘中读取整个 kernel,boot loader 是如何决定读取多少个扇区的？它是怎么找到这个信息的？
    
-    ELF 头文件信息指明了最后的位置.
+    ELF 头文件信息指明了最后的位置。
 
 **如何查看内核 ELF 文件所有段的信息？**
 
@@ -452,14 +452,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
 
 现在，我们只需映射物理内存的前 4MB 就足够启动/运行了。使用`kern/entrypgdir.c`中手写的，静态初始化的页面目录 (page directory) 和页表 (page table) 来达到这个目的。
 
-设备之间通过端口来进行通信.
+设备之间通过端口来进行通信。
 
    
 
-
 ```
 The target architecture is assumed to be i8086
-[f000:fff0]    0xffff0:	ljmp   $0xf000,$0xe05b #BIOS开始
+[f000:fff0]    0xffff0:	ljmp   $0xf000,$0xe05b #BIOS 开始
 0x0000fff0 in ?? ()
 + symbol-file obj/kern/kernel
 (gdb)
@@ -478,18 +477,18 @@ PPT: [PC 硬件 与 x86 架构](https://pdos.csail.mit.edu/6.828/2018/lec/l-x86.
 
 ### ELF 文件格式简述
 
-ELF 文件包含两部分,ELF header 和 文件数据.文件数据又包含三部分:
-- 程序头表(program header table)
-- 段头表(section header table)
+ELF 文件包含两部分，ELF header 和 文件数据。文件数据又包含三部分：
+- 程序头表 (program header table)
+- 段头表 (section header table)
 - 程序头表和段头表所引用的数据
 
 **File Header**
 
-ELF 文件头定义了使用 32 位地址还是 64 位地址.文件头大小在 32 位下是 52 个字节,64 位下是64 个字节.
+ELF 文件头定义了使用 32 位地址还是 64 位地址。文件头大小在 32 位下是 52 个字节，64 位下是 64 个字节。
 
 ## 参考资料
 
-- [CSDN: Linux C中内联汇编的语法格式及使用方法](https://blog.csdn.net/slvher/article/details/8864996)
-- [知乎专栏: 汇编入门](https://zhuanlan.zhihu.com/p/23902265)
-- [常见x86汇编](http://www.cburch.com/csbsju/cs/350/handouts/x86.html)
+- [CSDN: Linux C 中内联汇编的语法格式及使用方法](https://blog.csdn.net/slvher/article/details/8864996)
+- [知乎专栏：汇编入门](https://zhuanlan.zhihu.com/p/23902265)
+- [常见 x86 汇编](http://www.cburch.com/csbsju/cs/350/handouts/x86.html)
 - [main.c 代码分析](https://blog.csdn.net/xiaocainiaoshangxiao/article/details/22953279)

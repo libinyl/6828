@@ -81,33 +81,32 @@ boot loader 的代码包含两部分：
     
     IBM 提供了一个兼容性的技术，当键盘控制器的输出端口的第二位是`low`, 那么这个 21 位地址位总是清零的。如果是高，那么正常使用。
 
-    boot loader 必须使能此 21 位地址。怎样实现？通过 I/O, 操作键盘控制器的`0x64`和 `0x60`端口。(boot.S 24~42行)
-11. 什么是段描述表(segment descriptor table)? boot loader 是如何将处理器从 16 位切换到 32 位的?
+    boot loader 必须使能此 21 位地址。怎样实现？通过 I/O, 操作键盘控制器的`0x64`和 `0x60`端口。(boot.S 24~42 行）
+11. 什么是段描述表 (segment descriptor table)? boot loader 是如何将处理器从 16 位切换到 32 位的？
     
     ![保护模式下的段](/images/B-2.jpg)
 
 **C bootstrap**
 
-1. C 代码部分的 bootstrap 的任务是什么?
+1. C 代码部分的 bootstrap 的任务是什么？
    
-   在磁盘上找到 kernel ,复制到内存.
-2. 内核文件在哪?
+   在磁盘上找到 kernel , 复制到内存。
+2. 内核文件在哪？
 
-    在硬盘上第二个扇区.
+    在硬盘上第二个扇区。
 
     
-3. 如何加载内核?
-
+3. 如何加载内核？
 
    
-   内核是一个 ELF 格式的二进制文件,需要读取其 ELF 头,然后根据其信息再做处理.
+   内核是一个 ELF 格式的二进制文件，需要读取其 ELF 头，然后根据其信息再做处理。
 
-4. 如何查看内核文件的 ELF 信息?
+4. 如何查看内核文件的 ELF 信息？
 
-    可通过`readelf -h kernel`查看内核的 elf header 信息;用`objdump -f kernel`查看入口点.
+    可通过`readelf -h kernel`查看内核的 elf header 信息；用`objdump -f kernel`查看入口点。
 
 # 参考链接
 
 - [scratch space](https://www.computerhope.com/jargon/s/scratch-space.htm)
 - [ELF 文件](https://en.wikipedia.org/wiki/Executable_and_Linkable_Format)
-- [使用readelf和objdump解析目标文件](https://www.jianshu.com/p/863b279c941e)
+- [使用 readelf 和 objdump 解析目标文件](https://www.jianshu.com/p/863b279c941e)
