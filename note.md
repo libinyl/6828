@@ -221,7 +221,34 @@
 **练习三:**
 1. 处理器何时开始执行 32 位代码? 什么最终导致了16 位模式到 32 位模式的切换?
    
-   答: 
+   答:  boot.S 48~51 行. 将 `cr0` 寄存器的最后一位置打开,即开启了保护模式.
+
+    ```
+    lgdt    gdtdesc
+    movl    %cr0, %eax
+    orl     $CR0_PE_ON, %eax
+    movl    %eax, %cr0
+    ```
+    > lgdt : 加载全局中断描述符
+    > orl : 逻辑或
+
+2. boot loader 执行的最后一个指令是什么,它读取的内核的第一行代码是什么?
+   
+   答: 最后一行代码是`((void (*)(void)) (ELFHDR->e_entry))();`,位于`main.c`的第 60 行.
+
+   内核的入口可以通过以下命令查看:
+
+    ```
+    root@MyServer:~/6828/lab# objdump -f obj/kern/kernel
+
+    obj/kern/kernel:     file format elf32-i386
+    architecture: i386, flags 0x00000112:
+    EXEC_P, HAS_SYMS, D_PAGED
+    start address 0x0010000c       <----------  entry point
+    ```
+
+3. 内核的第一个指令在哪?
+4. 为了从磁盘中读取整个 kernel,boot loader 是如何决定读取多少个扇区的?它是怎么找到这个信息的?
 
 **如何查看内核 ELF 文件所有段的信息？**
 
