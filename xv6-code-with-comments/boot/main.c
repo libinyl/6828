@@ -2,31 +2,31 @@
 #include <inc/elf.h>
 
 /**********************************************************************
- * This a dirt simple boot loader, whose sole job is to boot
- * an ELF kernel image from the first IDE hard disk.
+ * 
+ *  简陋的 boot loader 实现，任务就是启动IDE硬盘中的 ELF 内核镜像。
  *
- * DISK LAYOUT
- *  * This program(boot.S and main.c) is the bootloader.  It should
- *    be stored in the first sector of the disk.
  *
- *  * The 2nd sector onward holds the kernel image.
+ * 硬盘布局
+ *  * boot.S 和 main.c 就是 bootloader。它应该被存储在硬盘的第一个扇区。
  *
- *  * The kernel image must be in ELF format.
+ *  * 第二个扇区存储内核镜像。
  *
- * BOOT UP STEPS
- *  * when the CPU boots it loads the BIOS into memory and executes it
+ *  * 内核镜像必须是 ELF 格式。
  *
- *  * the BIOS intializes devices, sets of the interrupt routines, and
- *    reads the first sector of the boot device(e.g., hard-drive)
- *    into memory and jumps to it.
  *
- *  * Assuming this boot loader is stored in the first sector of the
- *    hard-drive, this code takes over...
+ * 启动流程
  *
- *  * control starts in boot.S -- which sets up protected mode,
- *    and a stack so C code then run, then calls bootmain()
+ *  * CPU 启动后，加载 BIOS 到内存中并执行；
  *
- *  * bootmain() in this file takes over, reads in the kernel and jumps to it.
+ *  * BIOS 初始化设备，一组中断程序，然后读取引导设备（比如引导盘）的第一个扇区
+ *    到内存中，然后跳转到该地址。
+ *
+ *  * 假定此 boot loader 存储在引导盘的第一个扇区，那么此代码接管接下来的流程。
+ *
+ *  * 控制流从 boot.S 开始。boot.S 搭建好保护模式的环境，和用于 C 代码执行的栈，
+ *    然后调用 bootmain() 函数。
+ * 
+ *  * 该文件的bootmain() 函数继续接管，读取内核并跳转过去。
  **********************************************************************/
 
 #define SECTSIZE	512
