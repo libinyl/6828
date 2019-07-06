@@ -492,7 +492,26 @@ Idx Name          Size      VMA       LMA       File off  Algn
     ```
 
     答: 
+    ```c
+    /*
+        * 当前行光标达到了预定的显示阵列的最大容量,就腾出一行空间.
+        * 注意这里没有显式进行动态内存调整,还是利用原来的数组,
+        * 可以看做是显示窗口向下滑了一行.
+        * 
+        */
+    if (crt_pos >= CRT_SIZE) {
+        int i;
 
+        // 三个参数  1 缓冲区起始位置
+        //			2 缓冲区起始位置 + 一行宽度
+        //          3 (最大容量 - 一行宽度) * 无符号 short 型字节数
+        // 把从第二行开始到最后一行的内容复制到第一行开始的位置,并把最后一行清空.
+        memmove(crt_buf, crt_buf + CRT_COLS, (CRT_SIZE - CRT_COLS) * sizeof(uint16_t));
+        for (i = CRT_SIZE - CRT_COLS; i < CRT_SIZE; i++)
+            crt_buf[i] = 0x0700 | ' ';
+        crt_pos -= CRT_COLS;	// 腾出一行的空间
+    }
+    ```
 
 
 

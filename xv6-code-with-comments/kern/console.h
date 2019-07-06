@@ -13,9 +13,9 @@
 #define CGA_BASE	0x3D4
 #define CGA_BUF		0xB8000
 
-#define CRT_ROWS	25
-#define CRT_COLS	80
-#define CRT_SIZE	(CRT_ROWS * CRT_COLS)
+#define CRT_ROWS	25                      // 显示阵列的高度,即最大行数
+#define CRT_COLS	80                      // 显示阵列的宽度,即最大列数
+#define CRT_SIZE	(CRT_ROWS * CRT_COLS)   // 显示阵列的最大容量
 
 void cons_init(void);
 int cons_getc(void);

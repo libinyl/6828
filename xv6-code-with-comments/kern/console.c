@@ -128,7 +128,7 @@ lpt_putc(int c)
 
 static unsigned addr_6845;
 static uint16_t *crt_buf;
-static uint16_t crt_pos;
+static uint16_t crt_pos;	// 光标位置, 字符索引
 
 static void
 cga_init(void)
@@ -164,23 +164,26 @@ static void
 cga_putc(int c)
 {
 	// if no attribute given, then use black on white
+	// 如果 c 的高位无值,就赋给默认值 0x0700
+	// 此处的位操作: 0xFF为 int 型(编译器会视长度分配数值字面量类型,从 int 开始逐渐加大.一般就是 int),
+	// 取反后变为 0xFF00,与操作取 FF 对应的位,若为 0,则赋 07.这里的
 	if (!(c & ~0xFF))
 		c |= 0x0700;
 
-	switch (c & 0xff) {
-	case '\b':
-		if (crt_pos > 0) {
+	switch (c & 0xff) {		// 取最低字节值
+	case '\b':	// 退格
+		if (crt_pos > 0) {	// 从这里可以看出 crt_pos 是光标位置
 			crt_pos--;
-			crt_buf[crt_pos] = (c & ~0xff) | ' ';
-		}
+			crt_buf[crt_pos] = (c & ~0xff) | ' '; 	// 可以看出 crt_buf 是显示内容的缓冲区,这里退格,
+		}											// 就是将最后一个字符写入为(高字节指定的色彩模式)的空格.
 		break;
 	case '\n':
-		crt_pos += CRT_COLS;
-		/* fallthru */
+		crt_pos += CRT_COLS;	// new line 垂直向下移动黄标这里可以看出 CRT_COLS 是一行字符的容量.
+		/* fallthru */			// 这里对 \n 的处理是回到行首,并继续执行 \r ,即换行回车
 	case '\r':
-		crt_pos -= (crt_pos % CRT_COLS);
+		crt_pos -= (crt_pos % CRT_COLS);	// 回车,令光标回到行首,而不修改内容
 		break;
-	case '\t':
+	case '\t':					// 制表符,5 个空格
 		cons_putc(' ');
 		cons_putc(' ');
 		cons_putc(' ');
@@ -188,18 +191,28 @@ cga_putc(int c)
 		cons_putc(' ');
 		break;
 	default:
-		crt_buf[crt_pos++] = c;		/* write the character */
+		crt_buf[crt_pos++] = c;		/* 写入字符 */
 		break;
 	}
 
-	// What is the purpose of this?
+	/* *** lab1 练习8 下边的习题中问到此段代码的含义. ***
+	 *
+	 * 当前行光标达到了预定的显示阵列的最大容量,就腾出一行空间.
+	 * 注意这里没有显式进行动态内存调整,还是利用原来的数组,
+	 * 可以看做是显示窗口向下滑了一行.
+	 * 
+	 */
 	if (crt_pos >= CRT_SIZE) {
 		int i;
 
+		// 三个参数  1 缓冲区起始位置
+		//			2 缓冲区起始位置 + 一行宽度
+		//          3 (最大容量 - 一行宽度) * 无符号 short 型字节数
+		// 把从第二行开始到最后一行的内容复制到第一行开始的位置,并把最后一行清空.
 		memmove(crt_buf, crt_buf + CRT_COLS, (CRT_SIZE - CRT_COLS) * sizeof(uint16_t));
 		for (i = CRT_SIZE - CRT_COLS; i < CRT_SIZE; i++)
 			crt_buf[i] = 0x0700 | ' ';
-		crt_pos -= CRT_COLS;
+		crt_pos -= CRT_COLS;	// 腾出一行的空间
 	}
 
 	/* move that little blinky thing */
