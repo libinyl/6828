@@ -456,11 +456,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
 
 **控制台输出**
 
-> VGA:Video Graphics Array,视频图形阵列.
+> VGA:Video Graphics Array, 视频图形阵列。
 
-> 执行`make qemu`时,将在执行此命令的终端和qemu 自己的终端输出.为什么?
+> 执行`make qemu`时，将在执行此命令的终端和 qemu 自己的终端输出。为什么？
 
-    答: JOS 内核被设置为把它自己的 console 输出不仅输出到虚拟 VGA 显示器(就是调用此命令的控制台),还输出到模拟 PC 的虚拟串口,也就是 QEMU 自己的标准输出. 类似地,内核不仅接受键盘输入,还接受串口输入.也就是两个窗口都可以输入.
+    答：JOS 内核被设置为把它自己的 console 输出不仅输出到虚拟 VGA 显示器（就是调用此命令的控制台）, 还输出到模拟 PC 的虚拟串口，也就是 QEMU 自己的标准输出。类似地，内核不仅接受键盘输入，还接受串口输入。也就是两个窗口都可以输入。
 
 1. 解释 `printf.c`和`console.c`之间的接口。`console.c`导出了那些函数？`printf.c`是怎样使用它们的？
 
@@ -473,13 +473,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
     void kbd_intr(void); // irq 1
     void serial_intr(void); // irq 4
     ```
-    `printf.c`中最终暴露出来的是`cprintf`函数.调用链是
+    `printf.c`中最终暴露出来的是`cprintf`函数。调用链是
     
     `printf.c` : `cprintf->vcprintf->putch->cputchar`
 
     ->`console.c`: `cputchar->cons_putc`
 
-2. 解释`console.c`中的以下代码:
+2. 解释`console.c`中的以下代码：
 
     ```c
     1      if (crt_pos >= CRT_SIZE) {
@@ -491,21 +491,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
     7      }
     ```
 
-    答: 
+    答：
     ```c
     /*
-        * 当前行光标达到了预定的显示阵列的最大容量,就腾出一行空间.
-        * 注意这里没有显式进行动态内存调整,还是利用原来的数组,
-        * 可以看做是显示窗口向下滑了一行.
-        * 
-        */
+    * 当前行光标达到了预定的显示阵列的最大容量，就腾出一行空间。
+    * 注意这里没有显式进行动态内存调整，还是利用原来的数组，
+    * 可以看做是显示窗口向下滑了一行。
+    * 
+    */
     if (crt_pos >= CRT_SIZE) {
         int i;
 
         // 三个参数  1 缓冲区起始位置
         //			2 缓冲区起始位置 + 一行宽度
-        //          3 (最大容量 - 一行宽度) * 无符号 short 型字节数
-        // 把从第二行开始到最后一行的内容复制到第一行开始的位置,并把最后一行清空.
+        //          3 （最大容量 - 一行宽度） * 无符号 short 型字节数
+        // 把从第二行开始到最后一行的内容复制到第一行开始的位置，并把最后一行清空。
         memmove(crt_buf, crt_buf + CRT_COLS, (CRT_SIZE - CRT_COLS) * sizeof(uint16_t));
         for (i = CRT_SIZE - CRT_COLS; i < CRT_SIZE; i++)
             crt_buf[i] = 0x0700 | ' ';
@@ -513,10 +513,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
     }
     ```
 
+3. 跟踪以下代码：
 
+    ```c
+    int x = 1, y = 3, z = 4;
+    cprintf("x %d, y %x, z %d\n", x, y, z);
+    ```
 
-
-
+    1. 在 `cprintf` 的调用过程中，`fmt` 指向了什么？`ap` 指向了什么？
+    2. 以执行顺序列出与`cons_putc, va_arg, vcprintf`的所有调用。对于`cons_putc`, 把参数也列出来。对于`va_arg`, 把`ap`在调用函数之前之后的所指列出来。对于`vcprintf`, 把它两个参数值列出来。
 
 ## 附记
 
