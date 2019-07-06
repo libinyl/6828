@@ -27,10 +27,11 @@ i386_init(void)
 	// Before doing anything else, complete the ELF loading process.
 	// Clear the uninitialized global data (BSS) section of our program.
 	// This ensures that all static/global variables start out zero.
+	// 把全局数据段(BSS)清零,保证所有的 static/global 初始值为 0.
 	memset(edata, 0, end - edata);
 
-	// Initialize the console.
-	// Can't call cprintf until after we do this!
+	// 初始化控制台.
+	// 在此之前不可调用 cprintf!
 	cons_init();
 
 	cprintf("6828 decimal is %o octal!\n", 6828);

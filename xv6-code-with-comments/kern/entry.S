@@ -76,7 +76,7 @@ relocated:
 	# Set the stack pointer
 	movl	$(bootstacktop),%esp
 
-	# now to C code
+	# 最后调用 C 代码
 	call	i386_init
 
 	# Should never get here, but in case we do, just spin.

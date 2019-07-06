@@ -11,7 +11,7 @@
 static void cons_intr(int (*proc)(void));
 static void cons_putc(int c);
 
-// Stupid I/O delay routine necessitated by historical PC design flaws
+// 简陋的 I/O 延时函数,由于历史原因不得不这样写.
 static void
 delay(void)
 {
@@ -104,7 +104,8 @@ serial_init(void)
 
 
 
-/***** Parallel port output code *****/
+/***** 并行端口输出 *****/
+// 参考资料:
 // For information on PC parallel port programming, see the class References
 // page.
 
@@ -123,7 +124,7 @@ lpt_putc(int c)
 
 
 
-/***** Text-mode CGA/VGA display output *****/
+/***** 文本模式的 CGA/VGA 显示输出 *****/
 
 static unsigned addr_6845;
 static uint16_t *crt_buf;
@@ -428,7 +429,7 @@ cons_getc(void)
 	return 0;
 }
 
-// output a character to the console
+// 向控制台输出一个字符
 static void
 cons_putc(int c)
 {
@@ -437,7 +438,7 @@ cons_putc(int c)
 	cga_putc(c);
 }
 
-// initialize the console devices
+// 初始化控制台显示设备
 void
 cons_init(void)
 {
@@ -450,8 +451,7 @@ cons_init(void)
 }
 
 
-// `High'-level console I/O.  Used by readline and cprintf.
-
+// "高"级控制台 I/O. 供 readline 和 cprintf 使用.
 void
 cputchar(int c)
 {

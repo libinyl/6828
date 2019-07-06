@@ -456,26 +456,48 @@ Idx Name          Size      VMA       LMA       File off  Algn
 
 **控制台输出**
 
+> VGA:Video Graphics Array,视频图形阵列.
+
+> 执行`make qemu`时,将在执行此命令的终端和qemu 自己的终端输出.为什么?
+
+    答: JOS 内核被设置为把它自己的 console 输出不仅输出到虚拟 VGA 显示器(就是调用此命令的控制台),还输出到模拟 PC 的虚拟串口,也就是 QEMU 自己的标准输出. 类似地,内核不仅接受键盘输入,还接受串口输入.也就是两个窗口都可以输入.
+
+1. 解释 `printf.c`和`console.c`之间的接口。`console.c`导出了那些函数？`printf.c`是怎样使用它们的？
+
+    答： 如`console.h`所示，导出了下列函数：
+
+    ```c
+    void cons_init(void);
+    int cons_getc(void);
+
+    void kbd_intr(void); // irq 1
+    void serial_intr(void); // irq 4
+    ```
+    `printf.c`中最终暴露出来的是`cprintf`函数.调用链是
+    
+    `printf.c` : `cprintf->vcprintf->putch->cputchar`
+
+    ->`console.c`: `cputchar->cons_putc`
+
+2. 解释`console.c`中的以下代码:
+
+    ```c
+    1      if (crt_pos >= CRT_SIZE) {
+    2              int i;
+    3              memmove(crt_buf, crt_buf + CRT_COLS, (CRT_SIZE - CRT_COLS) * sizeof(uint16_t));
+    4              for (i = CRT_SIZE - CRT_COLS; i < CRT_SIZE; i++)
+    5                      crt_buf[i] = 0x0700 | ' ';
+    6              crt_pos -= CRT_COLS;
+    7      }
+    ```
+
+    答: 
 
 
-   
 
-```
-The target architecture is assumed to be i8086
-[f000:fff0]    0xffff0:	ljmp   $0xf000,$0xe05b #BIOS 开始
-0x0000fff0 in ?? ()
-+ symbol-file obj/kern/kernel
-(gdb)
 
-```
 
-```shell
-git clone git://github.com/mit-pdos/xv6-public.git
-cd ~/xv6-public
-make
-```
 
-PPT: [PC 硬件 与 x86 架构](https://pdos.csail.mit.edu/6.828/2018/lec/l-x86.pdf)
 
 ## 附记
 
@@ -499,10 +521,12 @@ ELF 文件头定义了使用 32 位地址还是 64 位地址。文件头大小�
 1. `main.c` 中的`ELFHDR->e_entry`跳转到了 elf 文件的入口点。如何验证？
 
 ## 参考资料
-
+- [PPT: PC 硬件 与 x86 架构](https://pdos.csail.mit.edu/6.828/2018/lec/l-x86.pdf)
 - [CSDN: Linux C 中内联汇编的语法格式及使用方法](https://blog.csdn.net/slvher/article/details/8864996)
 - [知乎专栏：汇编入门](https://zhuanlan.zhihu.com/p/23902265)
 - [常见 x86 汇编](http://www.cburch.com/csbsju/cs/350/handouts/x86.html)
 - [main.c 代码分析](https://blog.csdn.net/xiaocainiaoshangxiao/article/details/22953279)
-- [全局描述表GDT](https://www.cnblogs.com/bajdcc/p/8972946.html)
+- [全局描述表 GDT](https://www.cnblogs.com/bajdcc/p/8972946.html)
 - [ld 脚本语法教程](http://www.scoberlin.de/content/media/http/informatik/gcc_docs/ld_toc.html#TOC5)
+- [lab1 博客](https://www.bbsmax.com/A/QW5Yq8B5ma/)
+- [matrix 的博客：位运算技巧](http://www.matrix67.com/blog/archives/263)
