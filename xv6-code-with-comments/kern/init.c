@@ -24,9 +24,7 @@ i386_init(void)
 {
 	extern char edata[], end[];
 
-	// Before doing anything else, complete the ELF loading process.
-	// Clear the uninitialized global data (BSS) section of our program.
-	// This ensures that all static/global variables start out zero.
+	// 在做其他事之前, 完成 ELF 文件的加载过程.
 	// 把全局数据段(BSS)清零,保证所有的 static/global 初始值为 0.
 	memset(edata, 0, end - edata);
 
@@ -36,7 +34,7 @@ i386_init(void)
 
 	cprintf("6828 decimal is %o octal!\n", 6828);
 
-	// Test the stack backtrace function (lab 1 only)
+	// 测试栈调试(stack backtrace)函数
 	test_backtrace(5);
 
 	// Drop into the kernel monitor.

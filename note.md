@@ -138,6 +138,9 @@ int main(){
 // 1234 1234 5674 567d e67d        memcopy 在重叠时的行为是未定义的
 ```
 
+
+
+
 ## 常用信息
 
 - qemu 未初始化的内存会被反编译为`add %al,(%bx,%si) `
@@ -159,6 +162,51 @@ int main(){
     ```
     scp username@servername:/path/filename /Users/mac/Desktop（本地目录）
     ```
+## 打印指针地址的最好格式:
+
+https://stackoverflow.com/questions/9053658/correct-format-specifier-to-print-pointer-or-address
+
+## printf
+
+unsigned long(10 进制): %lu
+
+unsigned long(16 进制): %lx
+
+unsigned int (16 进制): %x
+
+unsigned int (10 进制): %u
+
+unsigned short  : %hd
+
+unsigned char
+
+## clion
+
+clion 多个生成目标
+
+https://icbd.github.io/wiki/tools/2017/01/15/clion-cmake.html
+
+### ELF 文件格式简述
+
+ELF 文件包含两部分，ELF header 和 文件数据。文件数据又包含三部分：
+- 程序头表 (program header table)
+- 段头表 (section header table)
+- 程序头表和段头表所引用的数据
+
+**File Header**
+
+ELF 文件头定义了使用 32 位地址还是 64 位地址。文件头大小在 32 位下是 52 个字节，64 位下是 64 个字节。
+
+![ELF 文件格式图](/images/ELF-format.png)
+
+### 几个关键的魔鬼数字
+
+1. 0x7c00
+
+## 遗留问题
+
+1. `main.c` 中的`ELFHDR->e_entry`跳转到了 elf 文件的入口点。如何验证？
+
 
 ## 参考资料
 

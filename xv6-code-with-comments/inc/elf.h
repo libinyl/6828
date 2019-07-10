@@ -3,8 +3,8 @@
  * 
  * 
  * 详可参考:
- * https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
- * 
+ * 1. https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
+ * 2. "linux 二进制分析"
  * 
  */
 
@@ -33,14 +33,14 @@ struct Elf {
 
 // program hdader,ELF 文件中data部分的类型之一
 struct Proghdr {
-	uint32_t p_type;
-	uint32_t p_offset;
-	uint32_t p_va;
-	uint32_t p_pa;
-	uint32_t p_filesz;
-	uint32_t p_memsz;
-	uint32_t p_flags;
-	uint32_t p_align;
+	uint32_t p_type;		// segment 类型
+	uint32_t p_offset;		// segment 偏移量
+	uint32_t p_va;			// segment virtual address 虚拟地址
+	uint32_t p_pa;			// segment physical address 物理地址
+	uint32_t p_filesz;		// segment 在文件中的大小
+	uint32_t p_memsz;		// segment 在内存中的大小
+	uint32_t p_flags;		// segment flag, 比如 execute|read
+	uint32_t p_align;		// segment 在内存中对齐的位置
 };
 
 // section header ELF 文件中 data 部分的类型之一

@@ -7,11 +7,11 @@ ENTRY(_start)
 
 SECTIONS
 {
-	/* Link the kernel at this address: "." means the current address */
+	/* 把内核链接至此地址; "."的意思是从此位置开始 */
 	. = 0xF0100000;
 
-	/* AT(...) gives the load address of this section, which tells
-	   the boot loader where to load the kernel in physical memory */
+	/* AT(...) 给出这个 section 的加载地址, 
+	   告诉 bootloader 从哪个物理地址来读取内核 */
 	.text : AT(0x100000) {
 		*(.text .stub .text.* .gnu.linkonce.t.*)
 	}
