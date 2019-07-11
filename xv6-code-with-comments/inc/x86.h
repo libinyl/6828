@@ -211,7 +211,7 @@ static inline uint32_t
 read_ebp(void)
 {
 	uint32_t ebp;
-	asm volatile("movl %%ebp,%0" : "=r" (ebp));
+	asm volatile("movl %%ebp,%0" : "=r" (ebp)); // 把寄存器的值(入参)赋给 ebp 变量(出参)
 	return ebp;
 }
 

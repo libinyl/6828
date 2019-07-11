@@ -1,4 +1,6 @@
-# 初始化实验环境
+# [Lab 1: Booting a PC](https://pdos.csail.mit.edu/6.828/2018/labs/lab1/)
+
+## 初始化实验环境
 
 1. 直接执行 [initlab.sh](initlab.sh), 下载实验所需代码
 2. 初始化 `QEMU`:
@@ -20,8 +22,6 @@
     ```shell
     make && make install
     ```
-# [Lab 1: Booting a PC](https://pdos.csail.mit.edu/6.828/2018/labs/lab1/)
-
 ## Part 1: PC Bootstrap
 
 1. 编译内核
@@ -535,10 +535,61 @@ Idx Name          Size      VMA       LMA       File off  Algn
 
 **esp, stack pointer, 栈指针寄存器**  指向当前栈的最低位置。在其位置以下的的内存都是空闲的。把一个值 push 进栈中，需要减少栈指针，然后把数据写入栈指针指向的位置。esp 的值永远可以被 4 整除。一些指令，如 call, 与栈指针寄存器牢牢地绑定在一起。也就是说，esp 可以看做是"硬件相关"的。
 
-**esp, base pointer, 基址指针**  与 esp 相反，是"软件相关"的。在进入 `C` 函数时，函数的序言 (prologue) 代码把之前的函数的 ebp 的值压入栈中保存起来，然后把之前的 esp 的值复制到当前的 ebp 中，用于当前函数。如果程序中的所有函数都遵守这一约定，那么在程序执行的任意时刻，就可以**顺着已保存的 ebp 的值，确定哪些函数调用导致程序执行至此函数。** 这个功能非常有用，比如当一个函数由于传入错误的参数导致执行参数校验的`assert`失败了，
+**ebp, base pointer, 基址指针**  与 esp 相反，是"软件相关"的。在进入 `C` 函数时，函数的序言 (prologue) 代码把之前的函数的 ebp 的值压入栈中保存起来，然后把之前的 esp 的值复制到当前的 ebp 中，用于当前函数。如果程序中的所有函数都遵守这一约定，那么在程序执行的任意时刻，就可以**顺着已保存的 ebp 的值，确定哪些函数调用导致程序执行至此函数。** 这个功能非常有用，比如当一个函数由于传入错误的参数导致执行参数校验的`assert`失败了，
 而你又不知道是哪个函数传进来的，那么就可以通过 ebp 来找到目标。`stack backtrace`可以帮你找到罪魁祸首。
 
+**分析**
 
+以一个最简单的函数调用为例：
+
+```c
+
+#include <stdio.h>
+test3(){}
+
+test2(){
+	test3();
+}
+test1(){
+	test2();
+}
+int main(){test1();}
+```
+
+用命令 `gcc -S -O0 -m32 -o test.s test.c` 将其编译为 `test.s`:
+
+```armasm
+
+test3:
+
+	pushl	%ebp
+	movl	%esp, %ebp
+	popl	%ebp
+	ret
+test2:
+	pushl	%ebp
+	movl	%esp, %ebp
+	call	test3
+	popl	%ebp
+	ret
+test1:
+	pushl	%ebp        // 存基址
+	movl	%esp, %ebp  // 用栈指针更新基址
+	call	test2       // 函数调用，返回。esp 在调用和返回时自动更新
+	popl	%ebp        // 
+	ret
+main:
+	pushl	%ebp        // 把当前栈的最低位置保存
+	movl	%esp, %ebp  // 把
+	call	test1
+	movl	$0, %eax
+	popl	%ebp
+	ret
+```
+
+可以看出，考虑到每次调用其他函数，返回值后需要继续执行代码，所以需要将 ebp 临时保存起来 (esp 跟随 cpu, 不用操心）. 而所调用函数的基址指针值就是当前函数的栈指针，所以要把栈指针复制给基址指针。进入子函数，栈指针自动从 0 开始，基址指针从刚刚传入的父函数的栈指针开始。调用结束，从哪里继续执行？从之前保存的 ebp 处继续执行，所以 pop 即可。
+
+**练习 10** 再熟悉下 x86 的调用约定，找到 ` obj/kern/kernel.asm` 中的 `test_backtrace` 的地址，打上断点，看看每次内核启动之后执行到此发生了什么。每次`test_backtrace`的递归压入栈中多少个 32 位的 word ? 这些 word 是什么？
 
 ## 参考资料
 - [PPT: PC 硬件 与 x86 架构](https://pdos.csail.mit.edu/6.828/2018/lec/l-x86.pdf)

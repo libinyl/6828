@@ -166,6 +166,28 @@ int main(){
 
 https://stackoverflow.com/questions/9053658/correct-format-specifier-to-print-pointer-or-address
 
+## gcc 编译选项
+
+把源码 `test.c` 编译为汇编:
+
+```
+gcc -S -O0 -m32 -o test.s test.c
+```
+
+附带调试符号
+
+```
+gcc -g test.c -o test
+```
+
+## 如何让 gdb 在第一条指令前停止?
+
+可用 gdb 中`info file`指令显示一些有用的地址.
+
+## _start 与 main 有什么联系或区别?
+
+可参考[这个](https://stackoverflow.com/questions/29694564/what-is-the-use-of-start-in-c)问答.
+
 ## printf
 
 unsigned long(10 进制): %lu

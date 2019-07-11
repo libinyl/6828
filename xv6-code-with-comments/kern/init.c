@@ -7,7 +7,7 @@
 #include <kern/monitor.h>
 #include <kern/console.h>
 
-// Test the stack backtrace function (lab 1 only)
+// backtrace 测试程序(仅供 lab1)
 void
 test_backtrace(int x)
 {
