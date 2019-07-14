@@ -48,11 +48,10 @@ entry:
 	# 转换为物理地址的 [0, 4MB). 在建立真实的 page table
 	# (实验 2中的mem_init)之前,这4MB 的区域是足够用的.
 
-	# 把 entry_pgdir 的物理地址加载到 cr3. entry_pgdir在
-	# 在 entrypgdir.c 中定义.
+	# 把 entry_pgdir 的物理地址加载到 cr3. entry_pgdir 在 entrypgdir.c 中定义.
 	movl	$(RELOC(entry_pgdir)), %eax
 	movl	%eax, %cr3
-	# Turn on paging.
+	# 开启 paging.
 	movl	%cr0, %eax
 	orl	$(CR0_PE|CR0_PG|CR0_WP), %eax
 	movl	%eax, %cr0
@@ -74,7 +73,7 @@ relocated:
 	# 最后调用 C 代码
 	call	i386_init
 
-	# Should never get here, but in case we do, just spin.
+	# 正常情况不会运行到这里.
 spin:	jmp	spin
 
 

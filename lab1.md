@@ -571,12 +571,12 @@ test2:
 	movl	%esp, %ebp
 	call	test3
 	popl	%ebp
-	ret
+	ret                 // 怎样知道返回到哪里? 通常是call 指令执行时会把下一条指令的地址保存到 eax. https://zhuanlan.zhihu.com/p/24265088 
 test1:
 	pushl	%ebp        // 存基址
 	movl	%esp, %ebp  // 用栈指针更新基址
-	call	test2       // 函数调用，返回。esp 在调用和返回时自动更新
-	popl	%ebp        // 
+	call	test2       // 函数调用，返回。esp 在调用和返回时自动更新。
+	popl	%ebp        // 弹出 ebp, 用于当前函数的剩余执行
 	ret
 main:
 	pushl	%ebp        // 把当前栈的最低位置保存
@@ -588,6 +588,8 @@ main:
 ```
 
 可以看出，考虑到每次调用其他函数，返回值后需要继续执行代码，所以需要将 ebp 临时保存起来 (esp 跟随 cpu, 不用操心）. 而所调用函数的基址指针值就是当前函数的栈指针，所以要把栈指针复制给基址指针。进入子函数，栈指针自动从 0 开始，基址指针从刚刚传入的父函数的栈指针开始。调用结束，从哪里继续执行？从之前保存的 ebp 处继续执行，所以 pop 即可。
+
+
 
 **练习 10** 再熟悉下 x86 的调用约定，找到 ` obj/kern/kernel.asm` 中的 `test_backtrace` 的地址，打上断点，看看每次内核启动之后执行到此发生了什么。每次`test_backtrace`的递归压入栈中多少个 32 位的 word ? 这些 word 是什么？
 
@@ -601,3 +603,5 @@ main:
 - [ld 脚本语法教程](http://www.scoberlin.de/content/media/http/informatik/gcc_docs/ld_toc.html#TOC5)
 - [lab1 博客](https://www.bbsmax.com/A/QW5Yq8B5ma/)
 - [matrix 的博客：位运算技巧](http://www.matrix67.com/blog/archives/263)
+- [维基百科: crt0](https://en.wikipedia.org/wiki/Crt0)
+- [Stack Overflow: What is the purpose of these instructions before the main preamble?](https://reverseengineering.stackexchange.com/a/18969)

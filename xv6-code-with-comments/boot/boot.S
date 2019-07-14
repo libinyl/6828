@@ -12,7 +12,7 @@
 .globl start
 start:
   .code16                     # 16 位汇编
-  cli                         # 去使能中断
+  cli                         # 去使能中断 此处地址为 0x7c00
   cld                         # String operations increment
 
   # Set up the important data segment registers (DS, ES, SS).
@@ -69,8 +69,8 @@ protcseg:
   # 本质上任意其他区域都可以被当做栈来使用。 
   # 这里选择 0x7c00 （也就是本文件中的 _start）作为栈顶，
   # 这个栈将从那里向下（朝着 0x0000）增长。
-  movl    $start, %esp
-  call bootmain
+  movl    $start, %esp          #   mov    $0x7c00,%esp
+  call bootmain                 #   call   0x7d15
 
   # If bootmain returns (it shouldn't), loop.
 spin:

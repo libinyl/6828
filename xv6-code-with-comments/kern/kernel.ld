@@ -1,5 +1,9 @@
 /* Simple linker script for the JOS kernel.
-   See the GNU ld 'info' manual ("info ld") to learn the syntax. */
+   See the GNU ld 'info' manual ("info ld") to learn the syntax. 
+   
+   语法参考: https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/4/html/Using_ld_the_GNU_Linker/scripts.html
+   */
+
 
 OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
 OUTPUT_ARCH(i386)
@@ -22,13 +26,16 @@ SECTIONS
 		*(.rodata .rodata.* .gnu.linkonce.r.*)
 	}
 
-	/* Include debugging information in kernel memory */
+	/* Include debugging information in kernel memory
+     * 
+	 * 参考: https://docs.freebsd.org/info/stabs/stabs.info.Top.html
+	 *      https://docs.freebsd.org/info/stabs/stabs.info.Symbol_Tables.html
+	 */
 	.stab : {
 		PROVIDE(__STAB_BEGIN__ = .);
 		*(.stab);
 		PROVIDE(__STAB_END__ = .);
-		BYTE(0)		/* Force the linker to allocate space
-				   for this section */
+		BYTE(0)		/* 强制 linker 为此 section 分配空间 */
 	}
 
 	.stabstr : {

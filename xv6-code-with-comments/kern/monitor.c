@@ -54,11 +54,33 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
 	return 0;
 }
 
+/**
+ * 输出描述: 
+ * 
+ * Stack backtrace:
+ *   ebp f0109e58  eip f0100a62  args 00000001 f0109e80 f0109e98 f0100ed2 00000031	// 第一行显示当前正在执行的函数的信息
+ *   ebp f0109ed8  eip f01000d6  args 00000000 00000000 f0100058 f0109f28 00000061  // 第二行显示调用当前函数的函数的信息
+ *   ...																			// 以此类推,打印出所有的栈帧. 可参考 entry.S 来确定"所有".
+ * 
+ * ebp : 进入函数时,call 指令将父函数的 esp 的值复制给了 ebp.
+ * eip : 函数的返回指针(return instruction pointer).当函数执行完毕并执行了 return后下一条要执行的命令的地址.
+ *       通常指向 call 指令之后的指令.
+ * args: 传入函数的前 5 个参数.注意,当给定的参数数量少于 5 个时,显示出来的 5 个值肯定有几个是没用的.
+ * 
+ */
+
 int
 mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 {
-	// Your code here.
-	return 0;
+    // Your code here.
+    cprintf("Stack backtrace:\n");
+    uint32_t *ebp =(uint32_t *) read_ebp();
+    while(0!=ebp)
+    {
+        cprintf("  ebp  %08x  eip %08x  args %08x\t%08x\t%08x\t%08x\t%08x\n",ebp,ebp[1],ebp[2],ebp[3],ebp[4],ebp[5],ebp[6],ebp[7]);
+        ebp=(uint32_t *)*ebp;
+    }
+    return 0;
 }
 
 

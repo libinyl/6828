@@ -20,6 +20,11 @@
 5. `c` 让程序继续执行
 6. `si` 汇编级执行下一指令
    
+stack_trace 练习常用代码:
+1. `b kern/init.c:test_backtrace`
+
+
+
 
 ### gdb 常用功能速查
 
@@ -38,21 +43,45 @@
 
 视图 | 命令
 ---|---
-汇编视图 | layout asm
-汇编+寄存器视图 | layout regs
-源代码视图 | layout src
+汇编 | layout asm
+代码+寄存器 | layout regs
+源代码 | layout src
+代码+汇编 | layout split
+
+### gdb display 速查
+
+查看当前显示的语句 | info display
+
+## gdb 界面操作速查 
+
+参考 https://blog.csdn.net/xu415/article/details/19021759
 
 ### gdb 远程调试步骤
 
 1. 服务器安装 gdbserver, 本地机安装 gdb.
 2. 端口映射：`ssh -L9091:localhost:9091 root@154.48.248.252`
-3. 服务端编译程序，务必加上`-g`选项。如：`gcc -g data.c -o data`
+3. 服务端编译程序，务必加上`-g`和`-O0`选项。如：`gcc -g -O0 data.c -o data`
 4. 服务端运行：`gdbserver :9091 targetfile` 注意 gdbserver 后有空格。完整命令是`gdbserver localhost:9091 targetfile`
 5. 本地运行：
     ```
     gdb
     target remote localhost:9091
     ```
+
+### 汇编
+
+leave
+
+在32位汇编下相当于:
+mov esp,ebp
+pop ebp
+
+CPU执行ret指令时，相当于进行：
+pop IP
+ 
+/* leave指令将EBP寄存器的内容复制到ESP寄存器中，
+以释放分配给该过程的所有堆栈空间。然后，它从堆栈恢复EBP寄存器的旧值。*/
+
 
 ## 常见位操作总结
 
@@ -207,6 +236,8 @@ unsigned char
 clion 多个生成目标
 
 https://icbd.github.io/wiki/tools/2017/01/15/clion-cmake.html
+
+
 
 ### ELF 文件格式简述
 

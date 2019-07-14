@@ -7,6 +7,15 @@
 #include <inc/stdarg.h>
 
 
+/**
+ * 几个打印函数的调用关系:
+ * 
+ * 
+ * cprintf()		: 最外层,边长参数初始化
+ * ->vcprintf()		: 第二层,把 putch 函数作为回调传入 vprintfmt
+ * ->vprintfmt()	: 格式化细节处理
+ */
+
 static void
 putch(int ch, int *cnt)
 {
