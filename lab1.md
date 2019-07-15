@@ -593,6 +593,26 @@ main:
 
 **练习 10** 再熟悉下 x86 的调用约定，找到 ` obj/kern/kernel.asm` 中的 `test_backtrace` 的地址，打上断点，看看每次内核启动之后执行到此发生了什么。每次`test_backtrace`的递归压入栈中多少个 32 位的 word ? 这些 word 是什么？
 
+```
+void
+test_backtrace(int x)
+{
+f0100040:	55                   	push   %ebp                             // 保存基址
+f0100041:	89 e5                	mov    %esp,%ebp                        // 把基址刷新为栈指针
+f0100043:	53                   	push   %ebx                             // 上个函数返回地址入栈---> 这里可以感受到,事实上,函数返回地址 也可以看作为参数---每个函数调用,都有一个隐含的参数! 
+f0100044:	83 ec 0c             	sub    $0xc,%esp                        // 申请 12byte/4int = 3 个整数的栈空间.
+f0100047:	8b 5d 08             	mov    0x8(%ebp),%ebx                   // ebp+2int 处的值赋给 ebx.
+                                                                            // 从上个函数调用本函数,bp 附近的栈,向增长方向,内容是 :
+                                                                            // 传给本函数的参数->上个函数返回地址->本函数内保存的 bp 基址.
+                                                                            // 所以当前 ebp 指向的值是刚刚保存的 ebp 的值
+                                                                            // ebp+1int 处的值是上个函数返回地址
+                                                                            // ebp+2int 处的值是传给本函数的(最后一个)参数
+
+	cprintf("entering test_backtrace %d\n", x);
+f010004a:	53                   	push   %ebx                             // 整数参数 x 入栈
+f010004b:	68 a0 18 10 f0       	push   $0xf01018a0                      // 字符串参数入栈
+```
+
 ## 参考资料
 - [PPT: PC 硬件 与 x86 架构](https://pdos.csail.mit.edu/6.828/2018/lec/l-x86.pdf)
 - [CSDN: Linux C 中内联汇编的语法格式及使用方法](https://blog.csdn.net/slvher/article/details/8864996)

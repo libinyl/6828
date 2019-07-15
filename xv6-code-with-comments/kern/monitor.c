@@ -55,7 +55,7 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
 }
 
 /**
- * 输出描述: 
+ * 练习 9 输出描述: 
  * 
  * Stack backtrace:
  *   ebp f0109e58  eip f0100a62  args 00000001 f0109e80 f0109e98 f0100ed2 00000031	// 第一行显示当前正在执行的函数的信息
@@ -67,6 +67,17 @@ mon_kerninfo(int argc, char **argv, struct Trapframe *tf)
  *       通常指向 call 指令之后的指令.
  * args: 传入函数的前 5 个参数.注意,当给定的参数数量少于 5 个时,显示出来的 5 个值肯定有几个是没用的.
  * 
+ * 
+ * 练习 10 输出描述:
+ * 
+ * > backtrace
+ * Stack backtrace:
+ *   ebp f010ff78  eip f01008ae  args 00000001 f010ff8c 00000000 f0110580 00000000
+ *       kern/monitor.c:143: monitor+106
+ *   ebp f010ffd8  eip f0100193  args 00000000 00001aac 00000660 00000000 00000000
+ *       kern/init.c:49: i386_init+59
+ * 
+ *       [文件]:[行号]: [函数名]+[函数返回时 eip 偏移量](offset,以字节为单位)
  */
 
 int
@@ -78,6 +89,9 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
     while(0!=ebp)
     {
         cprintf("  ebp  %08x  eip %08x  args %08x\t%08x\t%08x\t%08x\t%08x\n",ebp,ebp[1],ebp[2],ebp[3],ebp[4],ebp[5],ebp[6],ebp[7]);
+		struct Eipdebuginfo info;
+		debuginfo_eip(ebp,&info);
+		cprintf("info.eip_file:%s\n",info.eip_file);
         ebp=(uint32_t *)*ebp;
     }
     return 0;

@@ -19,10 +19,10 @@ typedef unsigned int uint32_t;
 typedef long long int64_t;
 typedef unsigned long long uint64_t;
 
-// Pointers and addresses are 32 bits long.
-// We use pointer types to represent virtual addresses,
-// uintptr_t to represent the numerical values of virtual addresses,
-// and physaddr_t to represent physical addresses.
+// 地址和指针都是 32 bit.
+// 用指针类型来代表虚拟地址,
+// 用 uintptr_t 表示虚拟地址的数值,
+// 用 physaddr_t 表示物理地址.
 typedef int32_t intptr_t;
 typedef uint32_t uintptr_t;
 typedef uint32_t physaddr_t;

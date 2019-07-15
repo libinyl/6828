@@ -12,19 +12,23 @@ extern const char __STABSTR_END__[];		// End of string table
 
 
 // stab_binsearch(stabs, region_left, region_right, type, addr)
-//
+//  有些 stab 类型按指令顺序升序排布.比如 N_FUN stabs (即进入 stab 段时类型为N_FUN)
+//  就把函数标记为升序,N_SO stabs 把源文件标记为升序.
 //	Some stab types are arranged in increasing order by instruction
 //	address.  For example, N_FUN stabs (stab entries with n_type ==
 //	N_FUN), which mark functions, and N_SO stabs, which mark source files.
-//
+//  
+//  给定一个指令的地址,此函数找到包含此地址,且类型为'type'的 stab 入口点.
 //	Given an instruction address, this function finds the single stab
 //	entry of type 'type' that contains that address.
-//
+
+//  此函数在区间 [*region_left, *region_right] 搜索.
+//  因此,如果想在一个数量为 N 的 stab 集合里搜索,可以这样做:
 //	The search takes place within the range [*region_left, *region_right].
 //	Thus, to search an entire set of N stabs, you might do:
 //
 //		left = 0;
-//		right = N - 1;     /* rightmost stab */
+//		right = N - 1;     /* 最右 stab */
 //		stab_binsearch(stabs, &left, &right, type, addr);
 //
 //	The search modifies *region_left and *region_right to bracket the
@@ -94,12 +98,10 @@ stab_binsearch(const struct Stab *stabs, int *region_left, int *region_right,
 }
 
 
-// debuginfo_eip(addr, info)
-//
-//	Fill in the 'info' structure with information about the specified
-//	instruction address, 'addr'.  Returns 0 if information was found, and
-//	negative if not.  But even if it returns negative it has stored some
-//	information into '*info'.
+// (addr, info)
+// 获取指定的指令地址 'addr' 的信息并填充到 'info' 结构.
+// 如果找到信息,就返回 0,否则返回负数.
+// 但即使返回负数,仍会向 '*info' 存储一些信息.
 //
 int
 debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
@@ -127,7 +129,7 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
   	        panic("User address");
 	}
 
-	// String table validity checks
+	// String table 有效性校验
 	if (stabstr_end <= stabstr || stabstr_end[-1] != 0)
 		return -1;
 
@@ -135,6 +137,10 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 	// 'eip'.  First, we find the basic source file containing 'eip'.
 	// Then, we look in that source file for the function.  Then we look
 	// for the line number.
+	// 目前已找到了 eip 指向指令所在的函数.
+	// 1. 需要找到包含 eip 的源文件
+	// 2. 考察此文件
+	// 3. 找到行号
 
 	// Search the entire set of stabs for the source file (type N_SO).
 	lfile = 0;
@@ -166,7 +172,7 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 		lline = lfile;
 		rline = rfile;
 	}
-	// Ignore stuff after the colon.
+	// 忽略冒号之后的代码
 	info->eip_fn_namelen = strfind(info->eip_fn_name, ':') - info->eip_fn_name;
 
 
@@ -179,7 +185,7 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 	//	Look at the STABS documentation and <inc/stab.h> to find
 	//	which one.
 	// Your code here.
-
+	
 
 	// Search backwards from the line number for the relevant filename
 	// stab.
