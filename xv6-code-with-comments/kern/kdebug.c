@@ -110,7 +110,7 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 	const char *stabstr, *stabstr_end;
 	int lfile, rfile, lfun, rfun, lline, rline;
 
-	// Initialize *info
+	// 初始化 *info
 	info->eip_file = "<unknown>";
 	info->eip_line = 0;
 	info->eip_fn_name = "<unknown>";
@@ -118,14 +118,14 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 	info->eip_fn_addr = addr;
 	info->eip_fn_narg = 0;
 
-	// Find the relevant set of stabs
+	// 确定 stab 位置信息
 	if (addr >= ULIM) {
 		stabs = __STAB_BEGIN__;
 		stab_end = __STAB_END__;
 		stabstr = __STABSTR_BEGIN__;
 		stabstr_end = __STABSTR_END__;
 	} else {
-		// Can't search for user-level addresses yet!
+		// 尚不可再用户级地址搜索!
   	        panic("User address");
 	}
 
@@ -133,31 +133,29 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 	if (stabstr_end <= stabstr || stabstr_end[-1] != 0)
 		return -1;
 
-	// Now we find the right stabs that define the function containing
-	// 'eip'.  First, we find the basic source file containing 'eip'.
-	// Then, we look in that source file for the function.  Then we look
-	// for the line number.
-	// 目前已找到了 eip 指向指令所在的函数.
-	// 1. 需要找到包含 eip 的源文件
-	// 2. 考察此文件
-	// 3. 找到行号
+	// 接下来要找到包含 eip 的函数所在的 stab.
+	// 1. 找到包含 eip 的源文件
+	// 2. 在此文件中找到目标函数
+	// 3. 找到目标函数的行号
 
-	// Search the entire set of stabs for the source file (type N_SO).
+	// 在所有 stabs 里搜索源文件的 stab(类型是 N_SO)
+	// lfile 和 rfilr 是包含源文件的 stabs 的索引值.
+	// 参考: http://www.math.utah.edu/docs/info/stabs_12.html#SEC73
 	lfile = 0;
 	rfile = (stab_end - stabs) - 1;
 	stab_binsearch(stabs, &lfile, &rfile, N_SO, addr);
 	if (lfile == 0)
 		return -1;
 
-	// Search within that file's stabs for the function definition
-	// (N_FUN).
+	// 在找到的 stab 中搜索与函数定义有关的 stab,类型是 N_FUN
 	lfun = lfile;
 	rfun = rfile;
 	stab_binsearch(stabs, &lfun, &rfun, N_FUN, addr);
 
+	// 参考: http://www.math.utah.edu/docs/info/stabs_12.html#SEC55
 	if (lfun <= rfun) {
-		// stabs[lfun] points to the function name
-		// in the string table, but check bounds just in case.
+		// stabs[lfun] 指向 string table 里的函数名.
+		// 但以防万一还是检查一下边界.
 		if (stabs[lfun].n_strx < stabstr_end - stabstr)
 			info->eip_fn_name = stabstr + stabs[lfun].n_strx;
 		info->eip_fn_addr = stabs[lfun].n_value;
@@ -172,26 +170,34 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 		lline = lfile;
 		rline = rfile;
 	}
-	// 忽略冒号之后的代码
+	// 确定函数名长度,忽略冒号之后的代码.
 	info->eip_fn_namelen = strfind(info->eip_fn_name, ':') - info->eip_fn_name;
 
 
-	// Search within [lline, rline] for the line number stab.
-	// If found, set info->eip_line to the right line number.
-	// If not found, return -1.
+	// 在 [lline, rline] 中搜索与行号有关的 stab.
+	// 如果找到了,就把 info->eip_line 的值设为行号.
+	// 否则设为 -1.
 	//
-	// Hint:
-	//	There's a particular stabs type used for line numbers.
-	//	Look at the STABS documentation and <inc/stab.h> to find
-	//	which one.
+	// 提示:
+	// 行号的类别请在 STABS documentation 和 <inc/stab.h>
+	// 中寻找答案.
 	// Your code here.
+	stab_binsearch(stabs,&lline,&rline,N_SLINE,addr);
+	if (lline <= rline) {
+		info->eip_line = stabs[lline].n_desc;
+	}else{
+		info->eip_line = -1;
+	}
 	
 
 	// Search backwards from the line number for the relevant filename
 	// stab.
+	// 从行号反向查找相应的文件名 stab.
 	// We can't just use the "lfile" stab because inlined functions
 	// can interpolate code from a different file!
+	// 不能直接用 "lfile" stab,因为内联函数会从不同的文件中插入代码!
 	// Such included source files use the N_SOL stab type.
+	// 这类included source file(头文件?)使用 N_SOL stab 类型.
 	while (lline >= lfile
 	       && stabs[lline].n_type != N_SOL
 	       && (stabs[lline].n_type != N_SO || !stabs[lline].n_value))
@@ -202,6 +208,7 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 
 	// Set eip_fn_narg to the number of arguments taken by the function,
 	// or 0 if there was no containing function.
+	// 把 eip_fn_narg 设为函数接收的参数个数,如果没有则设为 0
 	if (lfun < rfun)
 		for (lline = lfun + 1;
 		     lline < rfun && stabs[lline].n_type == N_PSYM;
