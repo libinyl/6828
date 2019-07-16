@@ -525,6 +525,16 @@ Idx Name          Size      VMA       LMA       File off  Algn
     1. 在 `cprintf` 的调用过程中，`fmt` 指向了什么？`ap` 指向了什么？
     2. 以执行顺序列出与`cons_putc, va_arg, vcprintf`的所有调用。对于`cons_putc`, 把参数也列出来。对于`va_arg`, 把`ap`在调用函数之前之后的所指列出来。对于`vcprintf`, 把它两个参数值列出来。
 
+```c
+// vprintfmt
+		// (unsigned) octal
+		case 'o':
+			// Replace this with your code.
+			num = getuint(&ap,lflag);
+			base = 8;
+			goto number;
+```
+
 ### 栈
 
 内核监控函数：打印一个栈的`backtrace`: 当前执行点调用`call`指令时保存起来的指令指针寄存器 (IP).
@@ -701,7 +711,19 @@ K>
 
 ```
 
+最终测试:
 
+```
+...
+make[1]: Leaving directory '/root/6828/lab1'
+running JOS: (1.5s)
+  printf: OK
+  backtrace count: OK
+  backtrace arguments: OK
+  backtrace symbols: OK
+  backtrace lines: OK
+Score: 50/50
+```
 
 ## 参考资料
 - [PPT: PC 硬件 与 x86 架构](https://pdos.csail.mit.edu/6.828/2018/lec/l-x86.pdf)
