@@ -415,7 +415,7 @@ EXEC_P, HAS_SYMS, D_PAGED
 start address 0x0010000c       <----------  entry point
 ```
 
-**总结** `boot/main.c`包含一个极简的 ELF 加载器，它把硬盘上 **kernel **的每个段都加载到内存中（的目标加载地址）, 然后跳转到内核的 **entry point**。
+**总结** `boot/main.c`包含一个极简的 ELF 加载器，它把硬盘上 **kernel** 的每个段都加载到内存中（的目标加载地址）, 然后跳转到内核的 **entry point**。
 
 ## Part 3: The Kernel
 
@@ -628,7 +628,7 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
     return 0;
 }
 ```
-** 练习 11 **
+**练习 11**
 
 ```c
 mon_backtrace(int argc, char **argv, struct Trapframe *tf)
@@ -648,7 +648,43 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 **练习 12**
 
 参考代码及其注释.
+```c
+// monitor.c
+static struct Command commands[] = {
+	{ "help", "Display this list of commands", mon_help },
+	{ "kerninfo", "Display information about the kernel", mon_kerninfo },
+	{"backtrace", "print information for each stack frame", mon_backtrace},
+};
 
+int
+mon_backtrace(int argc, char **argv, struct Trapframe *tf)
+{
+    // Your code here.
+    cprintf("Stack backtrace:\n");
+    uint32_t *ebp =(uint32_t *) read_ebp();
+    while(0!=ebp)
+    {
+        cprintf("  ebp  %08x  eip %08x  args %08x %08x %08x %08x %08x\n",ebp,ebp[1],ebp[2],ebp[3],ebp[4],ebp[5],ebp[6],ebp[7]);
+		struct Eipdebuginfo info;
+		debuginfo_eip(ebp[1],&info);
+		cprintf("         %s:%d: %.*s+%d\n",info.eip_file, info.eip_line, info.eip_fn_namelen,info.eip_fn_name,(ebp[1]-info.eip_fn_addr)/8);
+        ebp=(uint32_t *)*ebp;
+    }
+    return 0;
+}
+
+// kdebug.c
+// debuginfo_eip:
+    ...
+	// Your code here.
+	stab_binsearch(stabs,&lline,&rline,N_SLINE,addr);
+	if (lline <= rline) {
+		info->eip_line = stabs[lline].n_desc;
+	}else{
+		info->eip_line = -1;
+	}
+    ...
+```
 输出:
 
 ```shell
