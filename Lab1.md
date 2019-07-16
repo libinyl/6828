@@ -1,4 +1,4 @@
-# [Lab 1: Booting a PC](https://pdos.csail.mit.edu/6.828/2018/labs/lab1/)
+# [Lab 1: 启动 PC](https://pdos.csail.mit.edu/6.828/2018/labs/lab1/)
 
 ## 初始化实验环境
 
@@ -183,7 +183,7 @@
 
     在 BIOS 初始化了重要的设备 (device) 之后，BIOS 开始读取硬盘上的 boot loader, 并将控制权转移给它。
 
-## Part 2: The Boot Loader
+## Part 2: Boot Loader
 
 引导**硬盘/软盘**的最小读写单位是**扇区** (sector), 每块 512 个 byte. 每次读写操作必须是整数个 sector 单位。
 
@@ -417,7 +417,7 @@ start address 0x0010000c       <----------  entry point
 
 **总结** `boot/main.c`包含一个极简的 ELF 加载器，它把硬盘上 **kernel** 的每个段都加载到内存中（的目标加载地址）, 然后跳转到内核的 **entry point**。
 
-## Part 3: The Kernel
+## Part 3: Kernel
 
 和 boot loader 类似，kernel 部分也是从几句汇编开始（用于初始化 C 语言环境）。
 
@@ -525,7 +525,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
     1. 在 `cprintf` 的调用过程中，`fmt` 指向了什么？`ap` 指向了什么？
     2. 以执行顺序列出与`cons_putc, va_arg, vcprintf`的所有调用。对于`cons_putc`, 把参数也列出来。对于`va_arg`, 把`ap`在调用函数之前之后的所指列出来。对于`vcprintf`, 把它两个参数值列出来。
 
-### The Stack
+### 栈
 
 内核监控函数：打印一个栈的`backtrace`: 当前执行点调用`call`指令时保存起来的指令指针寄存器 (IP).
 
