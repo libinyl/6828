@@ -2,6 +2,9 @@
 #define JOS_INC_MMU_H
 
 /*
+ * 此文件包含 x86 内存管理单元的常量定义,
+ * 包括与页,段有关的数据结构和常量,以及
+ * %cr0, %cr4,%eflags寄存器,和 cpu trap.
  * This file contains definitions for the x86 memory management unit (MMU),
  * including paging- and segmentation-related data structures and constants,
  * the %cr0, %cr4, and %eflags registers, and traps.
@@ -9,19 +12,20 @@
 
 /*
  *
- *	Part 1.  Paging data structures and constants.
+ *  第一部分: 分页数据结构和常量
  *
  */
 
-// A linear address 'la' has a three-part structure as follows:
-//
+// la: linear address 线性地址.三段式结构:
+// 
 // +--------10------+-------10-------+---------12----------+
 // | Page Directory |   Page Table   | Offset within Page  |
 // |      Index     |      Index     |                     |
 // +----------------+----------------+---------------------+
 //  \--- PDX(la) --/ \--- PTX(la) --/ \---- PGOFF(la) ----/
 //  \---------- PGNUM(la) ----------/
-//
+// 
+// 
 // The PDX, PTX, PGOFF, and PGNUM macros decompose linear addresses as shown.
 // To construct a linear address la from PDX(la), PTX(la), and PGOFF(la),
 // use PGADDR(PDX(la), PTX(la), PGOFF(la)).

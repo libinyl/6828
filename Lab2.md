@@ -18,6 +18,19 @@
 
 虚拟内存是"word access"的,即最小的访问单位是 word.
 
+练习 2 增加了几个重要的源文件:
+
+- inc/memlayout.h 描述了虚拟地址空间. 要完成本实验,需要修改 pmap.c,memlayout.h 和 pmap.h,定义`PageInfo`结构,用于跟踪那块物理内存是释放状态.
+- kern/pmap.c 读取硬件信息,计算硬件有多少物理内存.无需了解 CMOS 硬件如何工作.
+- kern/pmap.h 需要重点关注,其中包含了很多完成本实验所必需的信息.
+- kern/kclock.h 操作 PC 的时钟和 CMOS RAM 硬件.BIOS 在这里记录着 PC 的内容和其他信息.
+- kern/kclock.c
+
+**页表硬件**
+
+
+
+
 **练习 1** 
 
 
