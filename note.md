@@ -1,4 +1,4 @@
-# 调试笔记
+# Lab1 笔记
 
 ## gdb 调试方式
 1. `cd ~/6828/lab;make qemu-nox-gdb`
@@ -264,3 +264,7 @@ ELF 文件头定义了使用 32 位地址还是 64 位地址。文件头大小�
 ## 参考资料
 
 [博客：gdb 远程调试](https://medium.com/@spe_/debugging-c-c-programs-remotely-using-visual-studio-code-and-gdbserver-559d3434fb78)
+
+# Lab2 笔记
+
+页表概念参考[油管视频](https://www.youtube.com/watch?v=KNUJhZCQZ9c)

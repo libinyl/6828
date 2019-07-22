@@ -6,6 +6,8 @@
 
 #include <kern/monitor.h>
 #include <kern/console.h>
+#include <kern/pmap.h>
+#include <kern/kclock.h>
 
 // backtrace 测试程序(仅供 lab1)
 void
@@ -37,6 +39,9 @@ i386_init(void)
 	// 测试栈调试(stack backtrace)函数
 	test_backtrace(5);
 
+	// Lab 2 memory management initialization functions
+	mem_init();
+	
 	// Drop into the kernel monitor.
 	while (1)
 		monitor(NULL);

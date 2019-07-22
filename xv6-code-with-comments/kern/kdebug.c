@@ -172,7 +172,11 @@ debuginfo_eip(uintptr_t addr, struct Eipdebuginfo *info)
 	}
 	// 确定函数名长度,忽略冒号之后的代码.
 	info->eip_fn_namelen = strfind(info->eip_fn_name, ':') - info->eip_fn_name;
-
+	if (lline <= rline) {
+		info->eip_line = lline;
+	}else{
+		info->eip_line = -1;
+	}
 
 	// 在 [lline, rline] 中搜索与行号有关的 stab.
 	// 如果找到了,就把 info->eip_line 的值设为行号.
