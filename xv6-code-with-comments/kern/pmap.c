@@ -9,18 +9,19 @@
 #include <kern/pmap.h>
 #include <kern/kclock.h>
 
-// 以下两个全局变量在i386_detect_memory()中赋值.
+// 这两个变量在i386_detect_memory()中赋值.
 size_t npages;					// 物理内存数(页)   Amount of physical memory (in pages)
 static size_t npages_basemem;	// 基本内存数(页)   Amount of base memory (in pages)
 
-// These variables are set in mem_init()
-pde_t *kern_pgdir;		// Kernel's initial page directory
-struct PageInfo *pages;		// Physical page state array
-static struct PageInfo *page_free_list;	// Free list of physical pages
+
+// 这两个变量在mem_init()中赋值.
+pde_t *kern_pgdir;						// 内核的初始 page directory	| Kernel's initial page directory
+struct PageInfo *pages;					// 物理页状态数组				| Physical page state array
+static struct PageInfo *page_free_list;	// 物理页 Free list				| Free list of physical pages
 
 
 // --------------------------------------------------------------
-// Detect machine's physical memory setup.
+// 检测机器的物理内存设置.
 // --------------------------------------------------------------
 
 static int
@@ -49,9 +50,10 @@ i386_detect_memory(void)
 	else
 		totalmem = basemem;
 
-	npages = totalmem / (PGSIZE / 1024);
-	npages_basemem = basemem / (PGSIZE / 1024);
+	npages = totalmem / (PGSIZE / 1024);		// 页数=总字节数/每页有多少字节
+	npages_basemem = basemem / (PGSIZE / 1024);	// 
 
+	// 总物理内存 = 基本内存 + 扩展内存
 	cprintf("Physical memory: %uK available, base = %uK, extended = %uK\n",
 		totalmem, basemem, totalmem - basemem);
 }
@@ -129,7 +131,7 @@ mem_init(void)
 	uint32_t cr0;
 	size_t n;
 
-	// 计算机器配有多少内存(npages & npages_basemem).
+	// 计算机器配有多少内存 (也就是计算出npages 和 npages_basemem).
 	i386_detect_memory();
 
 	// Remove this line when you're ready to test this function.
@@ -138,6 +140,7 @@ mem_init(void)
 	//////////////////////////////////////////////////////////////////////
 	// create initial page directory.
 	// 创建最开始的页目录(page directory)
+	// 也就是页链表中的 0 号表
 	kern_pgdir = (pde_t *) boot_alloc(PGSIZE);
 	memset(kern_pgdir, 0, PGSIZE);
 
@@ -160,14 +163,17 @@ mem_init(void)
 	// 申请一个大小为 npages 的 PageInfo 类型的数组,并存在"pages"里.
 	// 内核用这个数组来跟踪物理页:对于每个物理页,这个数组中都有一个对应的PageInfo.
 	// npages是内存中物理页的数量.用 memset 每个 PageInfo 的所有结构初始化为 0.
-
+	pages = boot_alloc(npages * sizeof (struct PageInfo));
+	memset(pages, 0, npages*sizeof(struct PageInfo));
 
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
 	// up the list of free physical pages. Once we've done so, all further
 	// memory management will go through the page_* functions. In
-	// particular, we can now map memory using boot_map_region
+	// particular, we can now map memory using totalmem
 	// or page_insert
+	// 目前已经初始化了内核数据结构.现在创建 空闲物理内存页链表. 所有之后的内存管理都通过
+	// 形如 page_* 的函数进行. 特别地,我们现在可以通过 totalmem 或 page_insert 来映射内存.
 	page_init();
 
 	check_page_free_list(1);
@@ -233,8 +239,11 @@ mem_init(void)
 
 // --------------------------------------------------------------
 // Tracking of physical pages.
+// 跟踪物理页.
 // The 'pages' array has one 'struct PageInfo' entry per physical page.
 // Pages are reference counted, and free pages are kept on a linked list.
+// 对每个物理页,page 数组都有一个 PageInfo 结构与其对应.
+// Page 被引用计数,空闲页被用一个链表维护.
 // --------------------------------------------------------------
 
 //
@@ -242,6 +251,9 @@ mem_init(void)
 // After this is done, NEVER use boot_alloc again.  ONLY use the page
 // allocator functions below to allocate and deallocate physical
 // memory via the page_free_list.
+// 初始化页结构和空闲内存列表.
+// 在此函数之后, 不再使用 boot_alloc, 必须只能使用下面的 页分配函数,通过
+// 其中的 page_free_list 来申请和释放物理内存.
 //
 void
 page_init(void)
@@ -263,6 +275,15 @@ page_init(void)
 	// Change the code to reflect this.
 	// NB: DO NOT actually touch the physical memory corresponding to
 	// free pages!
+
+	// 这里的示例代码把所有物理页都标记成了 free 状态,实际情况并非如此. 下面是实际情况:
+	//  1)	标记 0 页为 use 状态.
+	//		这样既可以维持实模式的 IDT 结构和 BIOS 结构,以后也许会使用.
+	//	2)  base memory 的剩余部分, [PGSIZE, npages_basemem * PGSIZE) 是 free 的.
+	//	3)	接下来是 IO 空洞 [IOPHYSMEM, EXTPHYSMEM).这部分绝不可以分配.
+	//	4)  接下来是扩展内存 [EXTPHYSMEM, ...).
+	//		扩展内存其中有些是 use 状态,有些是 free 状态.
+	//		
 	size_t i;
 	for (i = 0; i < npages; i++) {
 		pages[i].pp_ref = 0;
@@ -444,7 +465,7 @@ tlb_invalidate(pde_t *pgdir, void *va)
 
 
 // --------------------------------------------------------------
-// Checking functions.
+// 检测函数.
 // --------------------------------------------------------------
 
 //
