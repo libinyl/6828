@@ -12,7 +12,7 @@
 
 4. 查看即将执行的指令：
     ```
-    (gdb) x/10i $cs*0x10+$eip
+    (gdb) x/10i $cs*0x10+$eip2
           0xffff0: 	ljmp   $0xf000,$0xe05b
     ```
 
