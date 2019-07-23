@@ -9,9 +9,9 @@
 #include <kern/pmap.h>
 #include <kern/kclock.h>
 
-// These variables are set by i386_detect_memory()
-size_t npages;			// Amount of physical memory (in pages)
-static size_t npages_basemem;	// Amount of base memory (in pages)
+// 以下两个全局变量在i386_detect_memory()中赋值.
+size_t npages;					// 物理内存数(页)   Amount of physical memory (in pages)
+static size_t npages_basemem;	// 基本内存数(页)   Amount of base memory (in pages)
 
 // These variables are set in mem_init()
 pde_t *kern_pgdir;		// Kernel's initial page directory
@@ -111,8 +111,6 @@ boot_alloc(uint32_t n)
 		result = nextfree;		//注意,返回的是指向这块内存初始位置的地址,也就是 nextfree 在增长之前的值.可用地址:[result,nextfree)
 		nextfree += ROUNDUP(n,PGSIZE);
 	}
-
-		 
 	return result;
 }
 
@@ -159,6 +157,9 @@ mem_init(void)
 	// array.  'npages' is the number of physical pages in memory.  Use memset
 	// to initialize all fields of each struct PageInfo to 0.
 	// Your code goes here:
+	// 申请一个大小为 npages 的 PageInfo 类型的数组,并存在"pages"里.
+	// 内核用这个数组来跟踪物理页:对于每个物理页,这个数组中都有一个对应的PageInfo.
+	// npages是内存中物理页的数量.用 memset 每个 PageInfo 的所有结构初始化为 0.
 
 
 	//////////////////////////////////////////////////////////////////////
