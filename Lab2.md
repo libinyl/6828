@@ -26,6 +26,8 @@
 - kern/kclock.h 操作 PC 的时钟和 CMOS RAM 硬件.BIOS 在这里记录着 PC 的内容和其他信息.
 - kern/kclock.c
 
+
+
 **页表硬件**
 
 

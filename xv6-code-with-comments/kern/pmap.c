@@ -283,8 +283,8 @@ page_init(void)
 	//	3)	接下来是 IO 空洞 [IOPHYSMEM, EXTPHYSMEM).这部分绝不可以分配.
 	//	4)  接下来是扩展内存 [EXTPHYSMEM, ...).
 	//		扩展内存其中有些是 use 状态,有些是 free 状态.
-	//		
-
+	//		[PGSIZE, npages_basemem * PGSIZE)[IOPHYSMEM, EXTPHYSMEM)[EXTPHYSMEM, ...).
+	//
 	// 1. 标记 page[0] 为 use 状态.
 	pages[0].pp_ref = 1;
 
@@ -298,10 +298,12 @@ page_init(void)
 	}
 
 	// 3. IO 空洞,把每个 page 都标记为 use 状态.
-	for (i = IOPHYSMEM; i < EXTPHYSMEM; i++ )
+	for (i = IOPHYSMEM/PGSIZE; i < EXTPHYSMEM/PGSIZE; i++ )
 		pages[i].pp_ref = 1;
 
-	// 4. 扩展内存
+	// 4. 扩展内存 [EXTPHYSMEM, ...).
+	for (i = EXTPHYSMEM; i < )
+
 	
 
 
