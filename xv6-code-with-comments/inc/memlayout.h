@@ -187,7 +187,7 @@ struct PageInfo {
 	// Pages allocated at boot time using pmap.c's
 	// boot_alloc do not have valid reference count fields.
 
-	uint16_t pp_ref;// 指向这块内存的指针数量(通过page_alloc返回的指针)
+	uint16_t pp_ref;// 指向这块内存的指针数量(通过page_alloc返回的指针).当值为非 0 时,当前块是use 状态,否则是 free 状态.
 };
 
 #endif /* !__ASSEMBLER__ */

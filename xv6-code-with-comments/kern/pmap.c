@@ -284,12 +284,29 @@ page_init(void)
 	//	4)  接下来是扩展内存 [EXTPHYSMEM, ...).
 	//		扩展内存其中有些是 use 状态,有些是 free 状态.
 	//		
+
+	// 1. 标记 page[0] 为 use 状态.
+	pages[0].pp_ref = 1;
+
+	// 2. base memory 的剩余部分是 free 的.
+	// 让每个 page 元素都可以指向上一个(空闲的)元素.
 	size_t i;
-	for (i = 0; i < npages; i++) {
+	for (i = 1; i < npages_basemem; i++) {
 		pages[i].pp_ref = 0;
 		pages[i].pp_link = page_free_list;
 		page_free_list = &pages[i];
 	}
+
+	// 3. IO 空洞,把每个 page 都标记为 use 状态.
+	for (i = IOPHYSMEM; i < EXTPHYSMEM; i++ )
+		pages[i].pp_ref = 1;
+
+	// 4. 扩展内存
+	
+
+
+
+	
 }
 
 //
