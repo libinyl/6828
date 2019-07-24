@@ -302,7 +302,7 @@ page_init(void)
 		pages[i].pp_ref = 1;
 
 	// 4. 扩展内存 [EXTPHYSMEM, ...).
-	for (i = EXTPHYSMEM; i < )
+
 
 	
 
