@@ -77,7 +77,7 @@ bad:
 		/* do nothing */;
 }
 
-// 从内核文件的 offset 开始,读取 cout 个 byte 到 内存中 pa 的位置.
+// 从内核文件的 offset 开始,读取 count 个 byte 到 内存中 pa 的位置.
 // 实际可能比要求的复制更多一些.
 void
 readseg(uint32_t pa, uint32_t count, uint32_t offset)

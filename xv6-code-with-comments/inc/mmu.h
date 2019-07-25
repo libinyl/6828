@@ -16,7 +16,7 @@
  *
  */
 
-// la: linear address 线性地址.三段式结构:
+// la:  linear address 线性地址.三段式结构:
 // 
 // +--------10------+-------10-------+---------12----------+
 // | Page Directory |   Page Table   | Offset within Page  |
@@ -24,7 +24,11 @@
 // +----------------+----------------+---------------------+
 //  \--- PDX(la) --/ \--- PTX(la) --/ \---- PGOFF(la) ----/
 //  \---------- PGNUM(la) ----------/
-// 
+//
+// 1. 右移 12 位得到 page num PGNUM
+// 2. 右移 22 位读低 10 位得到 page directory index
+// 3. 右移 12 位读低 10 位得到 page table index
+// 4. 读低 12 位得到 offset.
 // 
 // The PDX, PTX, PGOFF, and PGNUM macros decompose linear addresses as shown.
 // To construct a linear address la from PDX(la), PTX(la), and PGOFF(la),
@@ -59,9 +63,9 @@
 #define PDXSHIFT	22		// offset of PDX in a linear address
 
 // Page table/directory entry flags.
-#define PTE_P		0x001	// Present			// 0x001
-#define PTE_W		0x002	// Writeable		// 0x010
-#define PTE_U		0x004	// User				// 0x100
+#define PTE_P		0x001	// Present			// PTE 是否存在.如果不存在,对此页的引用将导致 fault.
+#define PTE_W		0x002	// Writeable		// 是否允许指令向 page 进行写操作.如果未置位,则只有 read 和 instruction fetch 允许
+#define PTE_U		0x004	// User				// 是否允许用户程序使用此 page.如果 clear,只有内核允许使用此 page.
 #define PTE_PWT		0x008	// Write-Through	
 #define PTE_PCD		0x010	// Cache-Disable
 #define PTE_A		0x020	// Accessed

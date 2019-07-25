@@ -3,10 +3,20 @@
 
 pte_t entry_pgtable[NPTENTRIES];
 
-// 这是一个 page directory, 用于 entry.S, 作用是把物理内存的前 4MB 映射到
-// 虚拟地址 KERNBASE 开始的区域.(或者说,把虚拟地址的 [KERNBASE, KERNBASE+4MB)
-// 映射至物理地址的[0, 4MB)).
-// 这里选择了 4MB, 因为...
+// The entry.S page directory maps the first 4MB of physical memory
+// starting at virtual address KERNBASE (that is, it maps virtual
+// addresses [KERNBASE, KERNBASE+4MB) to physical addresses [0, 4MB)).
+// We choose 4MB because that's how much we can map with one page
+// table and it's enough to get us through early boot.  We also map
+// virtual addresses [0, 4MB) to physical addresses [0, 4MB); this
+// region is critical for a few instructions in entry.S and then we
+// never use it again.
+// 这是一个 page directory, 用于 entry.S, 作用是把物理内存的从KERNBASE开
+// 始的前 4MB 映射到虚拟地址 KERNBASE 开始的区域.(换句话说说,把虚拟地址的
+// [KERNBASE, KERNBASE+4MB)映射至物理地址的[0, 4MB)).
+// 这里选择了 4MB, 因为4MB 就是1 个页表所能映射的容量. 4KB*1024
+// 这个数字也足够启动需求.
+// 还需要把虚拟地址[0,4MB)映射到物理地址的[0,4MB)
 // We choose 4MB because that's how much we can map with one page
 // table and it's enough to get us through early boot.  We also map
 // virtual addresses [0, 4MB) to physical addresses [0, 4MB); this

@@ -17,7 +17,7 @@ static size_t npages_basemem;	// 基本内存数(页)   Amount of base memory (i
 // 这两个变量在mem_init()中赋值.
 pde_t *kern_pgdir;						// 内核的初始 page directory	| Kernel's initial page directory
 struct PageInfo *pages;					// 物理页状态数组				| Physical page state array
-static struct PageInfo *page_free_list;	// 物理页 Free list				| Free list of physical pages
+static struct PageInfo *page_free_list;	// 物理页 Free list	,指向上一个 free 的 page	| Free list of physical pages
 
 
 // --------------------------------------------------------------
@@ -83,6 +83,9 @@ static void check_page_installed_pgdir(void);
 // If we're out of memory, boot_alloc should panic.
 // This function may ONLY be used during initialization,
 // before the page_free_list list has been set up.
+// 
+// 申请 n 个字节的物理地址(仅限建立虚拟内存系统的时候.)
+// 如果内存用尽,则触发 panic.
 static void *
 boot_alloc(uint32_t n)
 {
@@ -94,6 +97,8 @@ boot_alloc(uint32_t n)
 	// which points to the end of the kernel's bss segment:
 	// the first virtual address that the linker did *not* assign
 	// to any kernel code or global variables.
+	// nextfree初始值为 0. 只有在第一次运行此函数的时候才会给 nextfree 赋值,得到第一个可用地址.
+	// 第一个可用地址紧邻内核的 bss 段之上.
 	if (!nextfree) {
 		extern char end[];// linker 自动生成的符号,指向 bss 段的结尾(bss 顺序向上).也就是 linker 到目前为止还没分配给任何内核代码或全局变量的地址.
 		nextfree = ROUNDUP((char *) end, PGSIZE);// 从 end 开始,向上取整PGSIZE的整数倍,作为第一个可用的虚拟地址.思考方式:end 已经接近我们的目标值,此步骤就是对 end 做一个微小的调整.
@@ -160,11 +165,11 @@ mem_init(void)
 	// array.  'npages' is the number of physical pages in memory.  Use memset
 	// to initialize all fields of each struct PageInfo to 0.
 	// Your code goes here:
-	// 申请一个大小为 npages 的 PageInfo 类型的数组,并存在"pages"里.
+	// 申请一个大小为 npages 的 PageInfo 类型的数组,并存在 pages 里.
 	// 内核用这个数组来跟踪物理页:对于每个物理页,这个数组中都有一个对应的PageInfo.
-	// npages是内存中物理页的数量.用 memset 每个 PageInfo 的所有结构初始化为 0.
+	// npages是内存中物理页的数量.用 memset 把每个 PageInfo 的所有结构初始化为 0.
 	pages = boot_alloc(npages * sizeof (struct PageInfo));
-	memset(pages, 0, npages*sizeof(struct PageInfo));
+	memset(pages, 0, npages * sizeof(struct PageInfo));
 
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
@@ -288,21 +293,33 @@ page_init(void)
 	// 1. 标记 page[0] 为 use 状态.
 	pages[0].pp_ref = 1;
 
-	// 2. base memory 的剩余部分是 free 的.
+	// 2. base memory [PGSIZE, npages_basemem * PGSIZE) 的剩余部分是 free 的.
 	// 让每个 page 元素都可以指向上一个(空闲的)元素.
 	size_t i;
 	for (i = 1; i < npages_basemem; i++) {
 		pages[i].pp_ref = 0;
-		pages[i].pp_link = page_free_list;
+		pages[i].pp_link = page_free_list;//当前page指向上一个空闲的 page
 		page_free_list = &pages[i];
 	}
 
-	// 3. IO 空洞,把每个 page 都标记为 use 状态.
+	// 3. IO 空洞[IOPHYSMEM, EXTPHYSMEM),把每个 page 都标记为 use 状态. 
 	for (i = IOPHYSMEM/PGSIZE; i < EXTPHYSMEM/PGSIZE; i++ )
 		pages[i].pp_ref = 1;
 
 	// 4. 扩展内存 [EXTPHYSMEM, ...).
+	//    跳过remapped pa mem.
+    size_t first_free_address = PADDR(boot_alloc(0));
+    for (i = EXTPHYSMEM/PGSIZE; i < first_free_address/PGSIZE; i++) {
+        pages[i].pp_ref = 1;
+    }
+    for (i = first_free_address/PGSIZE; i < npages; i++) {
+        pages[i].pp_ref = 0;
+        pages[i].pp_link = page_free_list;
+        page_free_list = &pages[i];
+    }
 
+
+	
 
 	
 

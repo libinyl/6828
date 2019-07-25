@@ -21,6 +21,10 @@ extern pde_t *kern_pgdir;
  * KERNBASE, where the machine's maximum 256MB of physical memory is mapped --
  * and returns the corresponding physical address.  It panics if you pass it a
  * non-kernel virtual address.
+ * 作用: 接受一个内核虚拟地址(即指向 KERNBASE 之上的,也就是机器的物理内存最高的 256MB 映射到的地方 )
+ * 返回相应的物理地址.
+ * 
+ * 如果传入非内核虚拟地址会触发panics.
  */
 #define PADDR(kva) _paddr(__FILE__, __LINE__, kva)
 
