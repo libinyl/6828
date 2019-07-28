@@ -47,9 +47,7 @@ bootmain(void)
 	// 
 	struct Proghdr *ph, *eph;
 
-	// 把底盘中的第一页读取进来.
-	// 磁盘起始有scratch space 结束的位置.
-	// 待完成文件系统后再来补充..
+	// 把磁盘中的第一页(从0始的512 字节*4=4MB)读取到物理内存的0x10000.(由于 scrach space 的原因所以有一些偏移)
 	readseg((uint32_t) ELFHDR, SECTSIZE*8, 0);
 
 	// 验证 ELF 有效性(魔数发挥作用!)
@@ -57,17 +55,18 @@ bootmain(void)
 		goto bad;
 
 	// 把每一个程序段都加载到内存(忽略 ph 标记)
-	// 初始化 ph 到第一个程序头位置
+	// 初始化 ph 到第elf header地址
 	ph = (struct Proghdr *) ((uint8_t *) ELFHDR + ELFHDR->e_phoff);
-	// 初始化 eph 为段的数量
+	// 初始化 eph 为elf header 尾的地址 也就是第一个 program header 的位置
 	eph = ph + ELFHDR->e_phnum;
+	// 把所有 section 都加载到其希望加载到的的物理地址
 	for (; ph < eph; ph++)
 		// p_pa:		当前段的加载地址(也是物理地址),即需要放在内存中的目标位置
 		// p_memsz:		当前段在内存中的大小
 		// p_offset:	当前段在文件镜像中的偏移量
 		readseg(ph->p_pa, ph->p_memsz, ph->p_offset);
 
-	// 通过 elf header,调用内核入口,并永不反回
+	// 通过 elf header,调用内核入口(),并永不反回
 	((void (*)(void)) (ELFHDR->e_entry))();
 
 bad:

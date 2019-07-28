@@ -50,17 +50,18 @@
 #define PGADDR(d, t, o)	((void*) ((d) << PDXSHIFT | (t) << PTXSHIFT | (o)))
 
 // Page directory and page table constants.
-#define NPDENTRIES	1024		// page directory entries per page directory
-#define NPTENTRIES	1024		// page table entries per page table
+// page directory 和 page table 常量
+#define NPDENTRIES	1024		// 每个 page directory 含有的 entry 数
+#define NPTENTRIES	1024		// 每个 page table 含有的 entry 数
 
-#define PGSIZE		4096		// bytes mapped by a page
-#define PGSHIFT		12		// log2(PGSIZE)
+#define PGSIZE		4096		// 每个 page 映射的 byte 数
+#define PGSHIFT		12			// log2(PGSIZE)
 
-#define PTSIZE		(PGSIZE*NPTENTRIES) // bytes mapped by a page directory entry
-#define PTSHIFT		22		// log2(PTSIZE)
+#define PTSIZE		(PGSIZE*NPTENTRIES) // 每个 page directory 映射的byte 数
+#define PTSHIFT		22			// log2(PTSIZE)
 
-#define PTXSHIFT	12		// offset of PTX in a linear address
-#define PDXSHIFT	22		// offset of PDX in a linear address
+#define PTXSHIFT	12			// offset of PTX in a linear address
+#define PDXSHIFT	22			// offset of PDX in a linear address
 
 // Page table/directory entry flags.
 #define PTE_P		0x001	// Present			// PTE 是否存在.如果不存在,对此页的引用将导致 fault.

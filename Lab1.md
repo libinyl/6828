@@ -298,7 +298,7 @@ kern/kernel:     file format elf32-i386
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         00001871  f0100000  00100000  00001000  2**4
+  0 .text         00001871        00100000  00001000  2**4
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
   1 .rodata       00000714  f0101880  00101880  00002880  2**5
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
@@ -313,8 +313,8 @@ Idx Name          Size      VMA       LMA       File off  Algn
   6 .comment      00000035  00000000  00000000  00013948  2**0
                   CONTENTS, READONLY
 ```
-> VMA: Virtual Memory Address, 链接地址
-> LMA: Load Memory Address, 加载地址
+> VMA: Virtual Memory Address, 链接地址,或者说执行地址,也就是程序运行时 PC 应当等于的值
+> LMA: Load Memory Address, 加载地址,是存储的位置.
 
 (*关于 VMA 和 LMA, 详细可参考这篇 [博客](https://blog.csdn.net/cinmyheart/article/details/39762595)。*)
 

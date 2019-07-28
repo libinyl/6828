@@ -43,8 +43,9 @@ seta20.2:
 
   # 从实模式切换到保护模式。这个过程通过 bootstrap GDT 和段翻译技术，让
   # 虚拟地址与物理地址一一映射。这样在切换期间有效内存映射不会改变。
-  lgdt    gdtdesc
-  movl    %cr0, %eax
+  # 装载全局描述符的基地址和长度进入全局描述符表寄存器，注意加载的时候限长为0表示有1个长度的有效字节
+  lgdt    gdtdesc           # 加载全局描述符
+  movl    %cr0, %eax        # 将 cr0的 PE 位置 1
   orl     $CR0_PE_ON, %eax
   movl    %eax, %cr0
   
@@ -77,11 +78,14 @@ spin:
   jmp spin
 
 # Bootstrap GDT
+# https://wiki.osdev.org/Global_Descriptor_Table
 .p2align 2                                # force 4 byte alignment
+
+# gdt是有三个全局描述符组成，第一个是空描述符，第二个是代码段描述符，第三个是数据段描述符
 gdt:
-  SEG_NULL				# null seg
-  SEG(STA_X|STA_R, 0x0, 0xffffffff)	# code seg
-  SEG(STA_W, 0x0, 0xffffffff)	        # data seg
+  SEG_NULL				                      # null seg
+  SEG(STA_X|STA_R, 0x0, 0xffffffff)	    # code seg
+  SEG(STA_W, 0x0, 0xffffffff)	          # data seg
 
 gdtdesc:
   .word   0x17                            # sizeof(gdt) - 1

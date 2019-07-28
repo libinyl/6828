@@ -28,6 +28,9 @@ pte_t entry_pgtable[NPTENTRIES];
 // related to linking and static initializers, we use "x + PTE_P"
 // here, rather than the more standard "x | PTE_P".  Everywhere else
 // you should use "|" to combine flags.
+// page directory 和 page table 必须从一个 page 边界开始,因此要加上
+// __attribute__ 属性. 并且,由于链接和静态初始化的原因,这里使用"x + PTN_P",
+// 而非更标准的"x | PTE_P".其他地方应该用"|"来组合 flag
 __attribute__((__aligned__(PGSIZE)))
 pde_t entry_pgdir[NPDENTRIES] = {
 	// Map VA's [0, 4MB) to PA's [0, 4MB)
@@ -40,6 +43,7 @@ pde_t entry_pgdir[NPDENTRIES] = {
 
 // Entry 0 of the page table maps to physical page 0, entry 1 to
 // physical page 1, etc.
+// page table entry 0 对应物理地址的 page 0,entry 1 对应物理地址的 page 1.
 __attribute__((__aligned__(PGSIZE)))
 pte_t entry_pgtable[NPTENTRIES] = {
 	0x000000 | PTE_P | PTE_W,

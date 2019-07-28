@@ -8,7 +8,7 @@
 1. 设置中断向量表;
 2. 初始化VGA ,PCI BUS等设备;
 3. 检测软/硬盘(floopy/hard disk),或者 CD-ROM;
-4. 找到 bootable磁盘后读取 bootloader,转移控制权.
+4. 找到 bootable 磁盘后读取 bootloader,转移控制权.
 
 ## BIOS 是如何转移控制权的?
 
