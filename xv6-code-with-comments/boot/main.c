@@ -47,7 +47,7 @@ bootmain(void)
 	// 
 	struct Proghdr *ph, *eph;
 
-	// 把磁盘中的第一页(从0始的512 字节*4=4MB)读取到物理内存的0x10000.(由于 scrach space 的原因所以有一些偏移)
+	// 把磁盘中的第一页(从0始的512 字节*=4MB)读取到物理内存的0x10000.(由于 scrach space 的原因所以有一些偏移)
 	readseg((uint32_t) ELFHDR, SECTSIZE*8, 0);
 
 	// 验证 ELF 有效性(魔数发挥作用!)
