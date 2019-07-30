@@ -31,21 +31,25 @@ pte_t entry_pgtable[NPTENTRIES];
 // page directory 和 page table 必须从一个 page 边界开始,因此要加上
 // __attribute__ 属性. 并且,由于链接和静态初始化的原因,这里使用"x + PTN_P",
 // 而非更标准的"x | PTE_P".其他地方应该用"|"来组合 flag
+
+// page directory 高 20 位是 pagenumber,即 page table 的索引;低 12 位是 flag.
 __attribute__((__aligned__(PGSIZE)))
 pde_t entry_pgdir[NPDENTRIES] = {
 	// Map VA's [0, 4MB) to PA's [0, 4MB)
+	// page directory 含有 1024 个 entry,即
 	[0]
 		= ((uintptr_t)entry_pgtable - KERNBASE) + PTE_P,
 	// Map VA's [KERNBASE, KERNBASE+4MB) to PA's [0, 4MB)
-	[KERNBASE>>PDXSHIFT]
+	[KERNBASE>>PDXSHIFT]// 地址右移 22 位得到高 10 位 恒为 960
 		= ((uintptr_t)entry_pgtable - KERNBASE) + PTE_P + PTE_W
 };
 
 // Entry 0 of the page table maps to physical page 0, entry 1 to
 // physical page 1, etc.
 // page table entry 0 对应物理地址的 page 0,entry 1 对应物理地址的 page 1.
+// 页表 前 20 位 page number 后 12 位 flag
 __attribute__((__aligned__(PGSIZE)))
-pte_t entry_pgtable[NPTENTRIES] = {
+pte_t entry_pgtable[NPTENTRIES] = {// 步进 0x1000 byte 即 4KB 共 1024 个 entry, 一个table 4MB
 	0x000000 | PTE_P | PTE_W,
 	0x001000 | PTE_P | PTE_W,
 	0x002000 | PTE_P | PTE_W,
@@ -1069,6 +1073,6 @@ pte_t entry_pgtable[NPTENTRIES] = {
 	0x3fc000 | PTE_P | PTE_W,
 	0x3fd000 | PTE_P | PTE_W,
 	0x3fe000 | PTE_P | PTE_W,
-	0x3ff000 | PTE_P | PTE_W,
+	0x3ff000 | PTE_P | PTE_W,	// 0x3ff000 = 255
 };
 

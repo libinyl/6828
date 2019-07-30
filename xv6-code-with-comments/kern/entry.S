@@ -56,7 +56,8 @@ entry:
 	orl	$(CR0_PE|CR0_PG|CR0_WP), %eax
 	movl	%eax, %cr0
 
-	# 现在 paging 已经使能了,但是当前代码仍运行在一个较低的 EIP.(为啥这是可行的?)
+	# 现在 paging 已经使能了,如果引用超出虚拟地址范围的地址立即回产生错误
+	# 但是当前代码仍运行在一个较低的 EIP.为什么这是可行的?因为我们也把0~4MB 映射了,所以没有超出范围.这是一个平滑过渡.
 	# 在进入 C 代码之前,跳过 KERNBASE.
 	mov	$relocated, %eax
 	jmp	*%eax
