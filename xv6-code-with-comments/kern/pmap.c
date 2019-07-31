@@ -219,7 +219,7 @@ mem_init(void)
 	// Permissions: kernel RW, user NONE
 	// Your code goes here:
 
-	// Check that the initial page directory has been set up correctly.
+	// 	 that the initial page directory has been set up correctly.
 	check_kern_pgdir();
 
 	// Switch from the minimal entry page directory to the full kern_pgdir
@@ -294,13 +294,14 @@ page_init(void)
 	//
 	// 1. 标记 page[0] 为 use 状态.
 	pages[0].pp_ref = 1;
+	pages[0].pp_link = NULL;
 
 	// 2. base memory [PGSIZE, npages_basemem * PGSIZE) 的剩余部分是 free 的.
 	// 让每个 page 元素都可以指向上一个(空闲的)元素.
 	size_t i;
 	for (i = 1; i < npages_basemem; i++) {
 		pages[i].pp_ref = 0;
-		pages[i].pp_link = page_free_list;//当前page指向上一个空闲的 page
+		pages[i].pp_link = page_free_list;//当前page指向上一个空闲的 page.对于最后一个节点,相当于 node.next = NULL
 		page_free_list = &pages[i];
 	}
 
@@ -341,7 +342,18 @@ struct PageInfo *
 page_alloc(int alloc_flags)
 {
 	// Fill this function in
-	return 0;
+	struct PageInfo *pg = page_free_list;
+	if(pg == NULL)
+		return NULL;
+
+	page_free_list = pg->pp_link;
+
+	pg->pp_ref = 0;
+	pg->pp_link = NULL;
+
+	if(alloc_flags & ALLOC_ZERO)
+		memset(page2kva(pg),'\0',PGSIZE);
+	return pg;
 }
 
 //
@@ -351,6 +363,13 @@ page_alloc(int alloc_flags)
 void
 page_free(struct PageInfo *pp)
 {
+	if(pp->pp_ref||pp->pp_link)
+		panic("pp->pp_ref is nonzero or pp->pp_link is not NULL.");
+
+	struct PageInfo *tmp = page_free_list;
+	page_free_list = pp;
+	pp->pp_link = tmp;
+	
 	// Fill this function in
 	// Hint: You may want to panic if pp->pp_ref is nonzero or
 	// pp->pp_link is not NULL.
@@ -389,6 +408,21 @@ page_decref(struct PageInfo* pp)
 // Hint 3: look at inc/mmu.h for useful macros that manipulate page
 // table and page directory entries.
 //
+// 接收一个指向 page directory 的指针"pgdir",返回其中与线性地址"va"对应的page table entry.
+// 需要遍历二级页表结构.
+// 
+// 对应的 page table 类型的 page 可能尚不存在.不存在的意思是什么?PTE_P 位flag
+// 如果确实不存在,且 create==false,那么返回 NULL.
+// 否则, 1) 通过page_alloc申请一个 page table 类型的 page.
+//		- 如果申请失败,返回 NULL.
+//		- 申请成功,则增加新申请page 的引用计数.
+//		2) 然后清空 page.
+//		3) 返回指向新 page table 类型的 page.
+// 提示 1: 可以用 kernel/pmap.h 中的page2pa() 来把一个 PageInfo * 转换为它引用的页的物理地址.
+// 提示 2: x86 MMU 会在 page directory 和 page table 都检查权限标志位,所以没必要把 page directory
+// 			的权限设置的过为严格.
+// 提示 3:考察inc/mmu.h,里边有很多操作 page table entry 和 page directory 的 entry有用的宏.
+
 pte_t *
 pgdir_walk(pde_t *pgdir, const void *va, int create)
 {
@@ -438,6 +472,16 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 // Hint: The TA solution is implemented using pgdir_walk, page_remove,
 // and page2pa.
 //
+// 把物理 page "pp" 映射到虚拟地址"va".
+// page table entry 的权限位(低 12 位)应当被设置为"perm|PTE_P".
+// 要求:
+// 	- 如果已经有 page 映射到了"va",那它应当被page_remove掉.
+//	- 如果有必要,一个 page table 应该被分配并插入到"pgdir".
+//	- 如果插入成功,pp->pp_ref 应该自增.
+//	- 如果 page 在"va" 恰当的出现,TLB 必须失效.
+// 
+// Corner-case 提示: 请考虑,当同样的 pp 再次在同一个虚拟地址插入会发生什么.
+// 请避免这种情况,它会引起很多 bug.有更优雅的方式来处理.
 int
 page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 {

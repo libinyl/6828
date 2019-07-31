@@ -22,3 +22,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
   6 .comment      00000035  00000000  00000000  00018bb4  2**0
                   CONTENTS, READONLY
 ```
+
+## page table 数据
+
+```
+Physical memory: 131072K available, base = 640K, extended = 130432K
+```
+
+每个 page 4096KB 故 有 npages = 131072KB/4096KB = 32
+
+

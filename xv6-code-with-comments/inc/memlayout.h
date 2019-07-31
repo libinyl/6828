@@ -140,8 +140,8 @@
 
 #ifndef __ASSEMBLER__
 
-typedef uint32_t pte_t;
-typedef uint32_t pde_t;
+typedef uint32_t pte_t;	// page table entry
+typedef uint32_t pde_t;	// page directory entry
 
 #if JOS_USER
 /*

@@ -38,6 +38,9 @@ _paddr(const char *file, int line, void *kva)
 
 /* This macro takes a physical address and returns the corresponding kernel
  * virtual address.  It panics if you pass an invalid physical address. */
+/**
+ * 此宏作用: 接收一个物理地址,返回相应的内核虚拟地址.若传入无效物理地址则出发 panic.
+ */
 #define KADDR(pa) _kaddr(__FILE__, __LINE__, pa)
 
 static inline void*
@@ -50,7 +53,7 @@ _kaddr(const char *file, int line, physaddr_t pa)
 
 
 enum {
-	// For page_alloc, zero the returned physical page.
+	// flag, For page_alloc, zero the returned physical page.
 	ALLOC_ZERO = 1<<0,
 };
 
@@ -66,6 +69,8 @@ void	page_decref(struct PageInfo *pp);
 
 void	tlb_invalidate(pde_t *pgdir, void *va);
 
+// pageinfo -> 物理地址
+// 减去 pages 起始地址,
 static inline physaddr_t
 page2pa(struct PageInfo *pp)
 {
