@@ -188,7 +188,7 @@ mem_init(void)
 	check_page();
 
 	//////////////////////////////////////////////////////////////////////
-	// Now we set up virtual memory
+	// 接下来建立虚拟内存
 
 	//////////////////////////////////////////////////////////////////////
 	// Map 'pages' read-only by the user at linear address UPAGES
@@ -333,6 +333,10 @@ page_init(void)
 // Returns NULL if out of free memory.
 //
 // Hint: use page2kva and memset
+// 申请一个物理 page.如果 (alloc_flags & ALLOC_ZERO)==1 ,那么把整块返回的物理 page 填充为'\0'.
+// 不要增加 page 的引用计数.这是调用方的义务.调用方可以显式处理,或者使用page_insert.
+//
+// 务必确认把申请的页的 pp_link字段设置为 NULL,这样page_free就可以检测double-free 的 bug了.
 struct PageInfo *
 page_alloc(int alloc_flags)
 {
