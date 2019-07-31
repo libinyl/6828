@@ -80,7 +80,7 @@ spin:	jmp	spin
 
 .data
 ###################################################################
-# boot stack 启用栈
+# boot stack :boot 阶段的栈
 ###################################################################
 	.p2align	PGSHIFT		# force page alignment
 	.globl		bootstack

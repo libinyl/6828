@@ -14,7 +14,7 @@ size_t npages;					// 物理内存数(页)   Amount of physical memory (in pages
 static size_t npages_basemem;	// 基本内存数(页)   Amount of base memory (in pages)
 
 
-// 这两个变量在mem_init()中赋值.
+// 这三个变量在mem_init()中赋值.
 pde_t *kern_pgdir;						// 内核的初始 page directory	| Kernel's initial page directory
 struct PageInfo *pages;					// 物理页状态数组				| Physical page state array
 static struct PageInfo *page_free_list;	// 物理页 Free list	,指向上一个 free 的 page	| Free list of physical pages
@@ -35,7 +35,7 @@ i386_detect_memory(void)
 {
 	size_t basemem, extmem, ext16mem, totalmem;
 
-	// Use CMOS calls to measure available base & extended memory.
+	// Use CMOS calls to measure available base & extended memor.y
 	// (CMOS calls return results in kilobytes.)
 	basemem = nvram_read(NVRAM_BASELO);
 	extmem = nvram_read(NVRAM_EXTLO);
@@ -50,12 +50,14 @@ i386_detect_memory(void)
 	else
 		totalmem = basemem;
 
-	npages = totalmem / (PGSIZE / 1024);		// 页数=总字节数/每页有多少字节
-	npages_basemem = basemem / (PGSIZE / 1024);	// 
+	npages = totalmem / (PGSIZE / 1024);		// 页数=总字节数(KB)/每页有多少KB字节   npages=32768
+	npages_basemem = basemem / (PGSIZE / 1024);	// npages_basemem=160
 
 	// 总物理内存 = 基本内存 + 扩展内存
 	cprintf("Physical memory: %uK available, base = %uK, extended = %uK\n",
 		totalmem, basemem, totalmem - basemem);
+	// Physical memory: 131072K available, base = 640K, extended = 130432K
+	// Physical memory: 128MB available, base = 640K, extended = 130432K
 }
 
 
@@ -100,7 +102,7 @@ boot_alloc(uint32_t n)
 	// nextfree初始值为 0. 只有在第一次运行此函数的时候才会给 nextfree 赋值,得到第一个可用地址.
 	// 第一个可用地址紧邻内核的 bss 段之上.
 	if (!nextfree) {
-		extern char end[];// linker 自动生成的符号,指向 bss 段的结尾(bss 顺序向上).也就是 linker 到目前为止还没分配给任何内核代码或全局变量的地址.
+		extern char end[];// linker 自动生成的符号,指向 bss 段的结尾(bss 顺序向上).也就是 linker 到目前为止还没分配给任何内核代码或全局变量的地址. 0xf0117ba0
 		nextfree = ROUNDUP((char *) end, PGSIZE);// 从 end 开始,向上取整PGSIZE的整数倍,作为第一个可用的虚拟地址.思考方式:end 已经接近我们的目标值,此步骤就是对 end 做一个微小的调整.
 	}
 
@@ -317,15 +319,6 @@ page_init(void)
         pages[i].pp_link = page_free_list;
         page_free_list = &pages[i];
     }
-
-
-	
-
-	
-
-
-
-	
 }
 
 //
