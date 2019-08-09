@@ -23,6 +23,7 @@ extern pde_t *kern_pgdir;
  * non-kernel virtual address.
  * 作用: 接受一个内核虚拟地址(即指向 KERNBASE 之上的,也就是机器的物理内存最高的 256MB 映射到的地方 )
  * 返回相应的物理地址.
+ * 实际是直接-KERNBASE.
  * 
  * 如果传入非内核虚拟地址会触发panics.
  */
@@ -77,6 +78,7 @@ page2pa(struct PageInfo *pp)
 	return (pp - pages) << PGSHIFT;
 }
 
+// 返回页面描述
 static inline struct PageInfo*
 pa2page(physaddr_t pa)
 {

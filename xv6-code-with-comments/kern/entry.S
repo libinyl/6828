@@ -49,6 +49,9 @@ entry:
 	# (实验 2中的mem_init)之前,这4MB 的区域是足够用的.
 
 	# 把 entry_pgdir 的物理地址加载到 cr3. entry_pgdir 在 entrypgdir.c 中定义.
+
+	# 开启映射:
+	# 1. 把物理地址
 	movl	$(RELOC(entry_pgdir)), %eax
 	movl	%eax, %cr3
 	# 开启 paging.

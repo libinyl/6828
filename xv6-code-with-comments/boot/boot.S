@@ -83,11 +83,19 @@ spin:
 
 # gdt是有三个全局描述符组成，第一个是空描述符，第二个是代码段描述符，第三个是数据段描述符
 gdt:
-  SEG_NULL				                      # null seg
-  SEG(STA_X|STA_R, 0x0, 0xffffffff)	    # code seg
-  SEG(STA_W, 0x0, 0xffffffff)	          # data seg
+  SEG_NULL				                      # null seg    #define SEG_NULL	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+  SEG(STA_X|STA_R, 0x0, 0xffffffff)	    # code seg    executable,writeable
+  SEG(STA_W, 0x0, 0xffffffff)	          # data seg    writeable
+/*
+
+#define SEG(type,base,lim)					\
+	.word (((lim) >> 12) & 0xffff), ((base) & 0xffff);	\
+	.byte (((base) >> 16) & 0xff), (0x90 | (type)),		\
+		(0xC0 | (((lim) >> 28) & 0xf)), (((base) >> 24) & 0xff)
+
+*/
 
 gdtdesc:
   .word   0x17                            # sizeof(gdt) - 1
-  .long   gdt                             # address gdt
+  .long   gdt                             # address gdt     # offset
 
