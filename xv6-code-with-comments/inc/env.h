@@ -26,16 +26,17 @@ typedef int32_t envid_t;
 // stands for the current environment.
 
 #define LOG2NENV		10
-#define NENV			(1 << LOG2NENV)
+#define NENV			(1 << LOG2NENV) // 最大环境数
 #define ENVX(envid)		((envid) & (NENV - 1))
 
 // Values of env_status in struct Env
+// 进程状态
 enum {
-	ENV_FREE = 0,
-	ENV_DYING,
-	ENV_RUNNABLE,
-	ENV_RUNNING,
-	ENV_NOT_RUNNABLE
+	ENV_FREE = 0,		// 不活跃,存在于 free_env_list 列表
+	ENV_DYING,			// 僵尸进程
+	ENV_RUNNABLE,		// 等待运行
+	ENV_RUNNING,		// 正在运行
+	ENV_NOT_RUNNABLE	// 此进程是当前运行的进程,但是是处于不活跃的状态.
 };
 
 // Special environment types
