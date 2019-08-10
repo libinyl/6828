@@ -2,7 +2,7 @@
 
 My MIT-6.828 code(with comments), labs, and notes.
 
-## lab 1 memory layout diagram
+## 内存分布图示
 
 Lab 1 实现了基本的内核虚拟空间.
 
