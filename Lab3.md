@@ -21,6 +21,12 @@ JOS中的`struct Env`与 xv6 中的`struct proc`类似. 它们都维护着当前
 
 **练习 1** 修改`mem_init`, 申请并映射`env`数组. 此数组包含整整`NENV`个`Env`结构的实例.申请方式类似`pages`.保存`envs`的内存也应该映射至`UENVS`. 所以用户进程可以从这里读取.
 
+## Creating and Running Environments
+
+现在开始写一些为了运行用户环境而必需的的代码. 由于尚未建立文件系统,我们首先令内核加载一个与 kernel 本身绑定的静态二进制镜像.
+
+Lab 3 的`GNUmakefile`生成了若干二进制文件,并放置到了`/obj/user/`目录中.
+
 
 ## 名次解释
 
