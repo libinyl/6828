@@ -10,4 +10,4 @@ Lab 1 实现了基本的内核虚拟空间.
 
 Lab 2 在 Lab 1 的基础上建立了虚拟内存.
 
-![lab2 内存分布](/images/memory_layout_lab2.jpg)
+![lab2 内存分布](/images/memory_layout_lab2.png)
