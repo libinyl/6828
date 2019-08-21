@@ -48,7 +48,18 @@ port install i386-elf-gcc
 
 ## 4 配置 CLion
 
+### 4.1 gdb
+
 添加调试设置,gdb remote debug,打断点调试即可.
+
+### 4.2 makefile 工程支持
+
+1. 安装`compiledb`: `pip install compiledb`
+2. 生成 json 文件: `compiledb make`
+3. open projext.
+
+
+参考[Jetbrains 博客文档](https://www.jetbrains.com/help/clion/managing-makefile-projects.html)
 
 ## 5 最终效果
 

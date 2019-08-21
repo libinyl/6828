@@ -148,24 +148,15 @@ env_init_percpu(void)
 	lldt(0);
 }
 
-//
-// Initialize the kernel virtual memory layout for environment e.
-// Allocate a page directory, set e->env_pgdir accordingly,
-// and initialize the kernel portion of the new environment's address space.
-// Do NOT (yet) map anything into the user portion
-// of the environment's virtual address space.
-//
-// Returns 0 on success, < 0 on error.  Errors include:
-//	-E_NO_MEM if page directory or table could not be allocated.
-//
-// 为 env 变量 e 初始化内核的虚拟内存.
-// 申请一个 page directory,设置对应的 env_pgdir.
-// 初始化env 地址空间的内核部分.
-// 现在先不要映射任何地址到env 虚拟地址空间的用户的部分.
-//
-// 一旦成功则返回 0 ,失败返回 <0 的值.
-// Error 包括:
-// -E_NO_MEM, 如果 page directory 或 page table 无法申请.
+
+/**
+ * 为 env e 初始化内核的虚拟内存布局,即 page directory.
+ * 	说明: 所有 env 的 UTOP以上的内容都相同.
+ * 
+ * 返回值: 
+ * 	成功: 0
+ *  失败: -E_NO_MEM,内存耗尽.
+ */
 static int
 env_setup_vm(struct Env *e)
 {
@@ -203,14 +194,14 @@ env_setup_vm(struct Env *e)
     return 0;
 }
 
-//
-// Allocates and initializes a new environment.
-// On success, the new environment is stored in *newenv_store.
-//
-// Returns 0 on success, < 0 on failure.  Errors include:
-//	-E_NO_FREE_ENV if all NENV environments are allocated
-//	-E_NO_MEM on memory exhaustion
-//
+/**
+ * 指定parentid,申请并初始化一个新的用户环境
+ * 
+ * 出参: newenv_store, 申请的环境
+ * 错误码:
+ * -E_NO_FREE_ENV: 可用环境数量耗尽
+ * -E_NO_MEM: 内存耗尽
+ */ 
 int
 env_alloc(struct Env **newenv_store, envid_t parent_id)
 {
@@ -218,29 +209,27 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	int r;
 	struct Env *e;
 
+	// 1. 检查可用环境数
 	if (!(e = env_free_list))
 		return -E_NO_FREE_ENV;
 
-	// Allocate and set up the page directory for this environment.
+	// 2. 建立环境的 page directory
 	if ((r = env_setup_vm(e)) < 0)
 		return r;
 
-	// Generate an env_id for this environment.
+	// 3. 生成一个新的 env_id
 	generation = (e->env_id + (1 << ENVGENSHIFT)) & ~(NENV - 1);
 	if (generation <= 0)	// Don't create a negative env_id.
 		generation = 1 << ENVGENSHIFT;
 	e->env_id = generation | (e - envs);
 
-	// Set the basic status variables.
+	// 4. 初始化 env 其他字段
 	e->env_parent_id = parent_id;
 	e->env_type = ENV_TYPE_USER;
 	e->env_status = ENV_RUNNABLE;
 	e->env_runs = 0;
 
-	// Clear out all the saved register state,
-	// to prevent the register values
-	// of a prior environment inhabiting this Env structure
-	// from "leaking" into our new environment.
+	// 5. 清零此环境的寄存器.(防止从其他环境切换过来时造成污染)
 	memset(&e->env_tf, 0, sizeof(e->env_tf));
 
 	// Set up appropriate initial values for the segment registers.
@@ -251,6 +240,7 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	// we switch privilege levels, the hardware does various
 	// checks involving the RPL and the Descriptor Privilege Level
 	// (DPL) stored in the descriptors themselves.
+	// 为 env 初始化段寄存器
 	e->env_tf.tf_ds = GD_UD | 3;
 	e->env_tf.tf_es = GD_UD | 3;
 	e->env_tf.tf_ss = GD_UD | 3;
@@ -258,7 +248,7 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 	e->env_tf.tf_cs = GD_UT | 3;
 	// You will set e->env_tf.tf_eip later.
 
-	// commit the allocation
+	// 提交申请.即令env_free_list指向此结构的下一个节点.
 	env_free_list = e->env_link;
 	*newenv_store = e;
 
@@ -273,6 +263,10 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 // Pages should be writable by user and kernel.
 // Panic if any allocation attempt fails.
 //
+// 为环境 env 申请 len 个字节的物理地址,并映射到环境的虚拟地址va处.
+//
+// 此函数没有初始化内存内容.
+// 页权限: 用户和内核可写入
 static void
 region_alloc(struct Env *e, void *va, size_t len)
 {
@@ -324,6 +318,13 @@ region_alloc(struct Env *e, void *va, size_t len)
 // load_icode panics if it encounters problems.
 //  - How might load_icode fail?  What might be wrong with the given input?
 //
+//
+// 初始化用户进程,包括 栈,cpu flag等.
+/**
+ * 给定进程镜像,初始化此进程,包括 stack,cpu flag 等.
+ * 	说明: 加载 elf 镜像中所有可加载的 segment
+ * 
+ */ 
 static void
 load_icode(struct Env *e, uint8_t *binary)
 {
@@ -361,7 +362,7 @@ load_icode(struct Env *e, uint8_t *binary)
 	// at virtual address USTACKTOP - PGSIZE.
 
 	// LAB 3: Your code here.
-	    struct Proghdr *ph, *eph;
+	struct Proghdr *ph, *eph;
     struct Elf *elf = (struct Elf *)binary;
     if (elf->e_magic != ELF_MAGIC) {
         panic("load_icode: not an ELF file");
